@@ -7,6 +7,9 @@ use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\FollowController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\FeedController;
+use App\Http\Controllers\FriendController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -19,6 +22,9 @@ Route::get('/dashboard', function () {
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    // Search
+    Route::get('/search', [SearchController::class, 'index'])->name('search');
+
     // Feed
     Route::get('/feed', [FeedController::class, 'index'])->name('feed');
     
@@ -45,10 +51,24 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/users/{user}/follow', [FollowController::class, 'follow'])->name('users.follow');
     Route::delete('/users/{user}/unfollow', [FollowController::class, 'unfollow'])->name('users.unfollow');
 
+    // Friends
+    Route::post('/users/{user}/friend-request', [FriendController::class, 'sendRequest'])->name('users.friend-request');
+    Route::post('/users/{user}/accept-friend', [FriendController::class, 'acceptRequest'])->name('users.accept-friend');
+    Route::post('/users/{user}/decline-friend', [FriendController::class, 'declineRequest'])->name('users.decline-friend');
+    Route::delete('/users/{user}/remove-friend', [FriendController::class, 'removeFriend'])->name('users.remove-friend');
+    Route::delete('/users/{user}/cancel-friend-request', [FriendController::class, 'cancelRequest'])->name('users.cancel-friend-request');
+
     // Messages
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{conversation}', [MessageController::class, 'show'])->name('messages.show');
     Route::post('/messages/{user}', [MessageController::class, 'store'])->name('messages.store');
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.mark-read');
+    Route::patch('/notifications/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('notifications.mark-all-read');
+    Route::delete('/notifications/{notification}', [NotificationController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('/notifications/unread-count', [NotificationController::class, 'getUnreadCount'])->name('notifications.unread-count');
 });
 
 require __DIR__.'/auth.php';

@@ -14,6 +14,9 @@ class ReactionController extends Controller
             'type' => 'required|in:like,love,wow,sad,angry',
         ]);
 
+        $existingReaction = $post->reactions()->where('user_id', auth()->id())->first();
+        $isNewReaction = !$existingReaction;
+
         $reaction = Reaction::updateOrCreate(
             [
                 'user_id' => auth()->id(),
@@ -23,6 +26,18 @@ class ReactionController extends Controller
                 'type' => $request->type,
             ]
         );
+
+        // Create notification for post reaction (only if it's a new reaction or different type)
+        if ($isNewReaction || $existingReaction->type !== $request->type) {
+            if ($post->user_id !== auth()->id()) { // Don't notify if reacting to own post
+                $post->user->notifications()->create([
+                    'sender_id' => auth()->id(),
+                    'type' => 'post_reaction',
+                    'message' => '<strong>' . auth()->user()->name . '</strong> reacted to your post with ' . $request->type . '.',
+                    'data' => ['url' => route('feed') . '#post-' . $post->id, 'post_id' => $post->id],
+                ]);
+            }
+        }
 
         if ($request->ajax()) {
             return response()->json([

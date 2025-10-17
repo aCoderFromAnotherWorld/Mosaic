@@ -21,6 +21,16 @@ class CommentController extends Controller
             'parent_id' => $request->parent_id,
         ]);
 
+        // Create notification for comment (only if not commenting on own post)
+        if ($post->user_id !== auth()->id()) {
+            $post->user->notifications()->create([
+                'sender_id' => auth()->id(),
+                'type' => 'comment',
+                'message' => '<strong>' . auth()->user()->name . '</strong> commented on your post.',
+                'data' => ['url' => route('feed') . '#post-' . $post->id, 'post_id' => $post->id, 'comment_id' => $comment->id],
+            ]);
+        }
+
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,

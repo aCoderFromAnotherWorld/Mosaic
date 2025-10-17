@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+
+class SearchController extends Controller
+{
+    public function index(Request $request)
+    {
+        $query = $request->get('q', '');
+        $users = collect();
+
+        if (!empty($query)) {
+            $users = User::where('id', '!=', auth()->id())
+                ->where(function ($q) use ($query) {
+                    $q->where('name', 'like', '%' . $query . '%')
+                      ->orWhere('username', 'like', '%' . $query . '%');
+                })
+                ->withCount(['followers', 'following'])
+                ->limit(20)
+                ->get()
+                ->map(function ($user) {
+                    $user->is_friend = $user->isFriend(auth()->id());
+                    $user->is_following = $user->isFollowing(auth()->id());
+                    $user->has_pending_request = $user->friendRequests()->where('sender_id', auth()->id())->where('status', 'pending')->exists();
+                    $user->has_received_request = auth()->user()->friendRequests()->where('sender_id', $user->id)->where('status', 'pending')->exists();
+                    return $user;
+                });
+        }
+
+        if ($request->ajax()) {
+            return response()->json([
+                'users' => $users,
+                'query' => $query
+            ]);
+        }
+
+        return view('search.index', compact('users', 'query'));
+    }
+}

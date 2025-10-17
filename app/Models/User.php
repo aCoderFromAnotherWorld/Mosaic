@@ -87,4 +87,37 @@ class User extends Authenticatable
     {
         return $this->following()->where('following_id', $userId)->exists();
     }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+
+    public function unreadNotifications()
+    {
+        return $this->notifications()->unread();
+    }
+
+    public function friends()
+    {
+        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
+                    ->withTimestamps();
+    }
+
+    public function isFriend($userId)
+    {
+        return $this->friends()->where('friend_id', $userId)->exists();
+    }
+
+    public function friendRequests()
+    {
+        return $this->belongsToMany(User::class, 'friend_requests', 'sender_id', 'receiver_id')
+                    ->withTimestamps();
+    }
+
+    public function sentFriendRequests()
+    {
+        return $this->belongsToMany(User::class, 'friend_requests', 'receiver_id', 'sender_id')
+                    ->withTimestamps();
+    }
 }
