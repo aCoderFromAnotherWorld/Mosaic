@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -27,21 +28,16 @@ class ProfileController extends Controller
         return view('profile.edit', ['user' => auth()->user()]);
     }
 
-    public function update(Request $request)
+    public function update(ProfileUpdateRequest $request)
     {
         $user = auth()->user();
-        
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users,username,' . $user->id,
-            'bio' => 'nullable|string|max:500',
-            'profile_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'cover_picture' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-        ]);
+
+        $request->validated();
 
         $data = [
             'name' => $request->name,
             'username' => $request->username,
+            'email' => $request->email,
             'bio' => $request->bio,
         ];
 
@@ -64,5 +60,38 @@ class ProfileController extends Controller
         $user->update($data);
 
         return redirect()->route('profile.show', $user->username)->with('success', 'Profile updated successfully!');
+    }
+
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = $request->user();
+
+        // Delete profile and cover pictures
+        if ($user->profile_picture) {
+            Storage::disk('public')->delete($user->profile_picture);
+        }
+        if ($user->cover_picture) {
+            Storage::disk('public')->delete($user->cover_picture);
+        }
+
+        // Delete media files from posts
+        foreach ($user->posts as $post) {
+            foreach ($post->media as $media) {
+                Storage::disk('public')->delete($media->file_path);
+            }
+        }
+
+        auth()->logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        $user->delete();
+
+        return redirect('/feed')->with('success', 'Account deleted successfully!');
     }
 }
