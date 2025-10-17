@@ -13,6 +13,11 @@ Route::get('/', function () {
     return redirect()->route('feed');
 });
 
+Route::get('/dashboard', function () {
+    return redirect()->route('feed');
+})->name('dashboard');
+
+
 Route::middleware(['auth', 'verified'])->group(function () {
     // Feed
     Route::get('/feed', [FeedController::class, 'index'])->name('feed');
@@ -29,9 +34,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
     
     // Profile
-    Route::get('/profile/{user:username}', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/{user:username}', [ProfileController::class, 'show'])->name('profile.show');
     // Follow
     Route::post('/users/{user}/follow', [FollowController::class, 'follow'])->name('users.follow');
     Route::delete('/users/{user}/unfollow', [FollowController::class, 'unfollow'])->name('users.unfollow');
