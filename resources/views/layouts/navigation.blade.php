@@ -1,19 +1,19 @@
-<nav x-data="{ open: false, openNotifications: false }" class="bg-white border-b border-gray-100">
+<nav x-data="{ open: false }" class="bg-white border-b border-gray-200 shadow-sm">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('feed') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                    <a href="{{ route('feed') }}" class="flex items-center">
+                        <x-mosaic-logo class="block h-8 w-auto" />
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     <x-nav-link :href="route('feed')" :active="request()->routeIs('feed')">
-                        {{ __('feed') }}
+                        {{ __('Feed') }}
                     </x-nav-link>
                     <x-nav-link :href="route('search')" :active="request()->routeIs('search')">
                         {{ __('Search') }}
@@ -51,7 +51,7 @@
                          x-transition:leave="transition ease-in duration-75"
                          x-transition:leave-start="transform opacity-100 scale-100"
                          x-transition:leave-end="transform opacity-0 scale-95"
-                         class="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg z-50"
+                         class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
                          style="display: none;">
                         <div class="py-1">
                             <div class="px-4 py-2 border-b border-gray-200">
@@ -66,7 +66,7 @@
                                         <div class="flex items-start space-x-3">
                                             <div class="flex-shrink-0">
                                                 @if($notification->sender)
-                                                    <img class="h-8 w-8 rounded-full" src="{{ $notification->sender->profile_picture ? asset('storage/' . $notification->sender->profile_picture) : asset('images/default-avatar.png') }}" alt="{{ $notification->sender->name }}">
+                                                    <img class="h-8 w-8 rounded-full" src="{{ $notification->sender->profile_picture ? asset('storage/' . $notification->sender->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($notification->sender->name) }}" alt="{{ $notification->sender->name }}">
                                                 @else
                                                     <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
                                                         <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,14 +85,14 @@
                                             </div>
                                             @if(!$notification->is_read)
                                                 <div class="flex-shrink-0">
-                                                    <div class="h-2 w-2 bg-blue-500 rounded-full"></div>
+                                                    <div class="h-2 w-2 bg-indigo-500 rounded-full"></div>
                                                 </div>
                                             @endif
                                         </div>
                                     </a>
                                 @endforeach
                                 <div class="px-4 py-2 border-t border-gray-200">
-                                    <a href="{{ route('notifications.index') }}" class="text-sm text-blue-600 hover:text-blue-500">
+                                    <a href="{{ route('notifications.index') }}" class="text-sm text-indigo-600 hover:text-indigo-500">
                                         View all notifications
                                     </a>
                                 </div>
@@ -107,7 +107,8 @@
 
                 <!-- Settings Dropdown -->
                 <div class="ms-3 relative" x-data="{ open: false }" @click.away="open = false">
-                    <button @click="open = !open" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                    <button @click="open = !open"
+                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
                         <div>{{ Auth::user()->name }}</div>
 
                         <div class="ms-1">
@@ -125,27 +126,24 @@
                          x-transition:leave="transition ease-in duration-75"
                          x-transition:leave-start="opacity-100 scale-100"
                          x-transition:leave-end="opacity-0 scale-95"
-                         class="absolute z-50 mt-2 w-48 rounded-md shadow-lg"
-                         style="display: none;">
-                        <div class="rounded-md ring-1 ring-black ring-opacity-5 bg-white py-1">
-                            <a href="{{ route('profile.show', Auth::user()->username) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                {{ __('Profile') }}
-                            </a>
-                            <a href="{{ route('notifications.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                {{ __('Notifications') }}
-                            </a>
-                            <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                {{ __('Settings') }}
-                            </a>
+                         class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 py-1 z-50">
+                        <a href="{{ route('profile.show', Auth::user()->username) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            {{ __('Profile') }}
+                        </a>
+                        <a href="{{ route('notifications.index') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            {{ __('Notifications') }}
+                        </a>
+                        <a href="{{ route('profile.edit') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            {{ __('Settings') }}
+                        </a>
 
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                                    {{ __('Log Out') }}
-                                </button>
-                            </form>
-                        </div>
+                        <!-- Authentication -->
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                {{ __('Log Out') }}
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -162,57 +160,56 @@
         </div>
     </div>
 
-        <!-- Responsive Navigation Menu -->
-        <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
-            <div class="pt-2 pb-3 space-y-1">
-                <x-responsive-nav-link :href="route('feed')" :active="request()->routeIs('feed')">
-                    {{ __('feed') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('search')" :active="request()->routeIs('search')">
-                    {{ __('Search') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('posts.create')" :active="request()->routeIs('posts.create')">
-                    {{ __('Create Post') }}
-                </x-responsive-nav-link>
-                <x-responsive-nav-link :href="route('messages.index')" :active="request()->routeIs('messages.*')">
-                    {{ __('Messages') }}
-                </x-responsive-nav-link>
+    <!-- Responsive Navigation Menu -->
+    <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
+        <div class="pt-2 pb-3 space-y-1">
+            <x-responsive-nav-link :href="route('feed')" :active="request()->routeIs('feed')">
+                {{ __('Feed') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('search')" :active="request()->routeIs('search')">
+                {{ __('Search') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('posts.create')" :active="request()->routeIs('posts.create')">
+                {{ __('Create Post') }}
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('messages.index')" :active="request()->routeIs('messages.*')">
+                {{ __('Messages') }}
+            </x-responsive-nav-link>
+        </div>
+
+        <!-- Responsive Settings Options -->
+        <div class="pt-4 pb-1 border-t border-gray-200">
+            <div class="px-4">
+                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
             </div>
 
-            <!-- Responsive Settings Options -->
-            <div class="pt-4 pb-1 border-t border-gray-200">
-                <div class="px-4">
-                    <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                    <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-                </div>
+            <div class="mt-3 space-y-1">
+                <x-responsive-nav-link :href="route('profile.show', Auth::user()->username)">
+                    {{ __('Profile') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('notifications.index')">
+                    {{ __('Notifications') }}
+                    @if(Auth::user()->unreadNotifications()->count() > 0)
+                        <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            {{ Auth::user()->unreadNotifications()->count() }}
+                        </span>
+                    @endif
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('profile.edit')">
+                    {{ __('Settings') }}
+                </x-responsive-nav-link>
 
-                <div class="mt-3 space-y-1">
-                    <x-responsive-nav-link :href="route('profile.show', Auth::user()->username)">
-                        {{ __('Profile') }}
+                <!-- Authentication -->
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <x-responsive-nav-link :href="route('logout')"
+                            onclick="event.preventDefault();
+                                        this.closest('form').submit();">
+                        {{ __('Log Out') }}
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('notifications.index')">
-                        {{ __('Notifications') }}
-                        @if(Auth::user()->unreadNotifications()->count() > 0)
-                            <span class="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                {{ Auth::user()->unreadNotifications()->count() }}
-                            </span>
-                        @endif
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link :href="route('profile.edit')">
-                        {{ __('Settings') }}
-                    </x-responsive-nav-link>
-
-                    <!-- Authentication -->
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-
-                        <x-responsive-nav-link :href="route('logout')"
-                                onclick="event.preventDefault();
-                                            this.closest('form').submit();">
-                            {{ __('Log Out') }}
-                        </x-responsive-nav-link>
-                    </form>
-                </div>
+                </form>
             </div>
         </div>
+    </div>
 </nav>

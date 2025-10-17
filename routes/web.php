@@ -24,6 +24,7 @@ Route::get('/dashboard', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
     // Search
     Route::get('/search', [SearchController::class, 'index'])->name('search');
+    Route::get('/search/users', [SearchController::class, 'searchUsers'])->name('search.users');
 
     // Feed
     Route::get('/feed', [FeedController::class, 'index'])->name('feed');
@@ -61,6 +62,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Messages
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');
     Route::get('/messages/{conversation}', [MessageController::class, 'show'])->name('messages.show');
+    Route::get('/messages/create/{user}', [MessageController::class, 'create'])->name('messages.create');
     Route::post('/messages/{user}', [MessageController::class, 'store'])->name('messages.store');
 
     // Notifications

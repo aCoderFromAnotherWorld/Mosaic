@@ -39,4 +39,24 @@ class SearchController extends Controller
 
         return view('search.index', compact('users', 'query'));
     }
+
+    public function searchUsers(Request $request)
+    {
+        $query = $request->get('q', '');
+        
+        if (empty($query)) {
+            return response()->json(['users' => []]);
+        }
+
+        $users = User::where('id', '!=', auth()->id())
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'like', '%' . $query . '%')
+                  ->orWhere('username', 'like', '%' . $query . '%');
+            })
+            ->select('id', 'name', 'username', 'profile_picture')
+            ->limit(10)
+            ->get();
+
+        return response()->json(['users' => $users]);
+    }
 }

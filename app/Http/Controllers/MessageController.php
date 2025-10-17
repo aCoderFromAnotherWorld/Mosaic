@@ -25,6 +25,31 @@ class MessageController extends Controller
         return view('messages.index', compact('conversations'));
     }
 
+    public function create(User $user)
+    {
+        // Check if user is trying to message themselves
+        if (auth()->id() === $user->id) {
+            return redirect()->route('messages.index')->with('error', 'You cannot message yourself.');
+        }
+
+        // Find existing conversation
+        $conversation = auth()->user()->conversations()
+            ->whereHas('users', function($query) use ($user) {
+                $query->where('users.id', $user->id);
+            })
+            ->first();
+
+        if ($conversation) {
+            return redirect()->route('messages.show', $conversation);
+        }
+
+        // Create new conversation
+        $conversation = Conversation::create();
+        $conversation->users()->attach([auth()->id(), $user->id]);
+
+        return redirect()->route('messages.show', $conversation);
+    }
+
     public function show(Conversation $conversation)
     {
         // Check if user is part of conversation
