@@ -14,7 +14,7 @@
                         <div class="flex items-center space-x-4">
                             <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) . '&size=200' }}" 
                                  alt="Profile" 
-                                 class="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-gray-200">
+                                 class="w-20 h-20 rounded-full object-cover border-2 border-gray-200">
                             <input type="file" 
                                    id="profile_picture" 
                                    name="profile_picture" 
@@ -33,7 +33,7 @@
                             @if(auth()->user()->cover_picture)
                                 <img src="{{ asset('storage/' . auth()->user()->cover_picture) }}" 
                                      alt="Cover" 
-                                     class="w-full h-24 sm:h-32 object-cover rounded-lg border border-gray-200">
+                                     class="w-full h-32 object-cover rounded-lg border border-gray-200">
                             @endif
                             <input type="file" 
                                    id="cover_picture" 

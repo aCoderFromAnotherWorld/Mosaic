@@ -12,7 +12,7 @@
                                 <a href="{{ route('profile.show', $post->user->username) }}" class="flex-shrink-0">
                                     <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name) }}" 
                                          alt="{{ $post->user->name }}" 
-                                         class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-100">
+                                         class="w-12 h-12 rounded-full object-cover border-2 border-gray-100">
                                 </a>
                                 <div class="min-w-0 flex-1">
                                     <a href="{{ route('profile.show', $post->user->username) }}" class="font-semibold text-gray-900 hover:text-indigo-600 transition-colors">

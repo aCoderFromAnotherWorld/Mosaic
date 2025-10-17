@@ -101,7 +101,7 @@
                                 <div class="flex items-center space-x-3">
                                     <img src="${user.profile_picture ? '/storage/' + user.profile_picture : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&size=200'}" 
                                          alt="${user.name}" 
-                                         class="w-8 h-8 rounded-full object-cover">
+                                         class="w-8 h-8 rounded-full object-cover border border-gray-200">
                                     <div>
                                         <p class="text-sm font-semibold text-gray-900">${user.name}</p>
                                         <p class="text-xs text-gray-500">@${user.username}</p>

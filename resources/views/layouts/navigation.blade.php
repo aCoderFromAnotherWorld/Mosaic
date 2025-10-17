@@ -66,7 +66,7 @@
                                         <div class="flex items-start space-x-3">
                                             <div class="flex-shrink-0">
                                                 @if($notification->sender)
-                                                    <img class="h-8 w-8 rounded-full" src="{{ $notification->sender->profile_picture ? asset('storage/' . $notification->sender->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($notification->sender->name) }}" alt="{{ $notification->sender->name }}">
+                                                    <img class="h-8 w-8 rounded-full object-cover border border-gray-200" src="{{ $notification->sender->profile_picture ? asset('storage/' . $notification->sender->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($notification->sender->name) }}" alt="{{ $notification->sender->name }}">
                                                 @else
                                                     <div class="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
                                                         <svg class="h-4 w-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -4,7 +4,7 @@
             <!-- Profile Header -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
                 <!-- Cover Photo -->
-                <div class="h-48 sm:h-64 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 relative">
+                <div class="h-48 sm:h-64 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 relative overflow-hidden">
                     @if($user->cover_picture)
                         <img src="{{ asset('storage/' . $user->cover_picture) }}" 
                              alt="Cover" 
@@ -19,7 +19,7 @@
                         <div class="flex -mt-16 sm:-mt-20">
                             <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&size=200' }}" 
                                  alt="{{ $user->name }}" 
-                                 class="w-24 h-24 sm:w-32 sm:h-32 md:w-40 md:h-40 rounded-full border-4 border-white object-cover shadow-lg">
+                                 class="w-24 h-24 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full border-4 border-white object-cover shadow-lg">
                         </div>
 
                         <!-- User Info -->

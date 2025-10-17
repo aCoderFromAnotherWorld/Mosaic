@@ -9,7 +9,7 @@
                             <a href="{{ route('profile.show', $post->user->username) }}">
                                 <img src="{{ $post->user->profile_picture ? asset('storage/' . $post->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($post->user->name) }}" 
                                      alt="{{ $post->user->name }}" 
-                                     class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover border-2 border-gray-100">
+                                     class="w-12 h-12 rounded-full object-cover border-2 border-gray-100">
                             </a>
                             <div>
                                 <a href="{{ route('profile.show', $post->user->username) }}" class="text-sm sm:text-base font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
@@ -124,7 +124,7 @@
                         <div class="flex space-x-3">
                             <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}" 
                                  alt="{{ auth()->user()->name }}" 
-                                 class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 border-2 border-gray-100">
+                                 class="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-gray-100">
                             <div class="flex-1">
                                 <textarea name="content" 
                                           id="comment-input"
@@ -153,7 +153,7 @@
                                 <div class="flex space-x-3">
                                     <img src="{{ $comment->user->profile_picture ? asset('storage/' . $comment->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->name) }}" 
                                          alt="{{ $comment->user->name }}" 
-                                         class="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 border-2 border-gray-100">
+                                         class="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-gray-100">
                                     <div class="flex-1">
                                         <div class="bg-gray-50 rounded-lg px-3 py-2">
                                             <a href="{{ route('profile.show', $comment->user->username) }}" class="text-sm sm:text-base font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
@@ -200,7 +200,7 @@
                                                     <div class="flex space-x-3">
                                                         <img src="{{ $reply->user->profile_picture ? asset('storage/' . $reply->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($reply->user->name) }}" 
                                                              alt="{{ $reply->user->name }}" 
-                                                             class="w-6 h-6 sm:w-8 sm:h-8 rounded-full object-cover flex-shrink-0 border-2 border-gray-100">
+                                                             class="w-8 h-8 rounded-full object-cover flex-shrink-0 border-2 border-gray-100">
                                                         <div class="flex-1">
                                                             <div class="bg-gray-50 rounded-lg px-3 py-2">
                                                                 <a href="{{ route('profile.show', $reply->user->username) }}" class="text-xs sm:text-sm font-semibold text-gray-900 hover:text-indigo-600 transition-colors">
