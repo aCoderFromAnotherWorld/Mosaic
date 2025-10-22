@@ -23,18 +23,19 @@
                         <div class="flex-1 overflow-y-auto">
                             @forelse($conversations as $conversation)
                                 @php
-                                    $otherUser = $conversation->users->where('id', '!=', auth()->id())->first();
+                                    $otherUser = $conversation->users->firstWhere('id', '!=', auth()->id()) ?? $conversation->users->first();
                                     $lastMessage = $conversation->messages()->latest()->first();
                                 @endphp
+                                @continue(!$otherUser)
                                 <a href="{{ route('messages.show', $conversation) }}" 
                                    class="flex items-center p-4 hover:bg-gray-50 border-b border-gray-100 transition">
-                                    <img src="{{ $otherUser->profile_picture ? asset('storage/' . $otherUser->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($otherUser->name) . '&size=200' }}" 
-                                         alt="{{ $otherUser->name }}" 
+                                    <img src="{{ $otherUser->profile_picture ? asset('storage/' . $otherUser->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($otherUser->name ?? 'Unknown User') . '&size=200' }}" 
+                                         alt="{{ $otherUser->name ?? __('Unknown User') }}" 
                                          class="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-gray-100">
                                     <div class="ml-3 flex-1 min-w-0">
                                         <div class="flex items-center justify-between">
                                             <p class="text-sm font-semibold text-gray-900 truncate">
-                                                {{ $otherUser->name }}
+                                                {{ $otherUser->name ?? __('Unknown User') }}
                                             </p>
                                             @if($lastMessage)
                                                 <p class="text-xs text-gray-500">
