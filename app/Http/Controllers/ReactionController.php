@@ -39,7 +39,7 @@ class ReactionController extends Controller
             }
         }
 
-        if ($request->ajax()) {
+        if ($request->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'reactions_count' => $post->reactions()->count(),
@@ -53,7 +53,7 @@ class ReactionController extends Controller
     {
         $post->reactions()->where('user_id', auth()->id())->delete();
 
-        if (request()->ajax()) {
+        if (request()->wantsJson()) {
             return response()->json([
                 'success' => true,
                 'reactions_count' => $post->reactions()->count(),
