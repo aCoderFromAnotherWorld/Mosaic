@@ -99,8 +99,8 @@
 
                     <!-- Submit Button -->
                     <div class="flex justify-end">
-                        <button type="submit" 
-                                class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                        <button type="submit"
+                                class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
                             Update Profile
                         </button>
                     </div>

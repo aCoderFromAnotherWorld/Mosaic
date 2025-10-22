@@ -56,7 +56,7 @@
                         <a href="{{ route('feed') }}" class="w-full sm:w-auto px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-center font-medium">
                             Cancel
                         </a>
-                        <button type="submit" class="w-full sm:w-auto bg-indigo-600 text-white px-6 py-3 rounded-lg hover:bg-indigo-700 transition-colors font-medium">
+                        <button type="submit" class="w-full sm:w-auto bg-[royalblue] text-white px-6 py-3 rounded-lg hover:bg-[#365899] transition-colors font-medium">
                             Publish Post
                         </button>
                     </div>

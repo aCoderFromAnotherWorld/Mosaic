@@ -16,10 +16,19 @@
                 <div class="relative px-4 sm:px-6 pb-4 sm:pb-6">
                     <div class="sm:flex sm:items-end sm:space-x-5">
                         <!-- Profile Picture -->
+                        @php
+                            $profileAvatarUrl = $user->profile_picture
+                                ? asset('storage/' . $user->profile_picture)
+                                : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&size=600';
+                        @endphp
                         <div class="flex -mt-16 sm:-mt-20">
-                            <img src="{{ $user->profile_picture ? asset('storage/' . $user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($user->name) . '&size=200' }}" 
-                                 alt="{{ $user->name }}" 
-                                 class="w-24 h-24 sm:w-24 sm:h-24 md:w-24 md:h-24 rounded-full border-4 border-white object-cover shadow-lg">
+                            <div class="rounded-full border-4 border-white shadow-lg overflow-hidden flex-shrink-0 mx-auto sm:mx-0 cursor-pointer transition-transform hover:scale-105 profile-avatar-wrapper"
+                                 style="width: 6.5rem; height: 6.5rem;">
+                                <img id="profileAvatarImage"
+                                     src="{{ $profileAvatarUrl }}"
+                                     alt="{{ $user->name }}"
+                                     class="w-full h-full object-cover profile-avatar-img">
+                            </div>
                         </div>
 
                         <!-- User Info -->
@@ -155,3 +164,123 @@
         </div>
     </div>
 </x-app-layout>
+
+<div id="profileAvatarModal" class="profile-avatar-modal">
+    <span class="profile-avatar-modal__close">&times;</span>
+    <img class="profile-avatar-modal__content" id="profileAvatarModalImage" alt="Profile avatar preview">
+    <div id="profileAvatarCaption" class="profile-avatar-modal__caption"></div>
+</div>
+
+<style>
+    .profile-avatar-wrapper {
+        border-radius: 50%;
+    }
+
+    .profile-avatar-img {
+        border-radius: 50%;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .profile-avatar-img:hover {
+        opacity: 0.8;
+    }
+
+    .profile-avatar-modal {
+        display: none;
+        position: fixed;
+        z-index: 100;
+        padding-top: 100px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.9);
+    }
+
+    .profile-avatar-modal__content {
+        margin: auto;
+        display: block;
+        width: 80%;
+        max-width: 700px;
+        animation-name: avatarZoom;
+        animation-duration: 0.6s;
+    }
+
+    .profile-avatar-modal__caption {
+        margin: auto;
+        display: block;
+        width: 80%;
+        max-width: 700px;
+        text-align: center;
+        color: #ccc;
+        padding: 10px 0;
+        height: 150px;
+        animation-name: avatarZoom;
+        animation-duration: 0.6s;
+    }
+
+    @keyframes avatarZoom {
+        from { transform: scale(0); }
+        to { transform: scale(1); }
+    }
+
+    .profile-avatar-modal__close {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+
+    .profile-avatar-modal__close:hover,
+    .profile-avatar-modal__close:focus {
+        color: #bbb;
+    }
+
+    @media only screen and (max-width: 700px) {
+        .profile-avatar-modal__content {
+            width: 100%;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const triggerImage = document.getElementById('profileAvatarImage');
+        const modal = document.getElementById('profileAvatarModal');
+        const modalImage = document.getElementById('profileAvatarModalImage');
+        const caption = document.getElementById('profileAvatarCaption');
+        const closeButton = modal?.querySelector('.profile-avatar-modal__close');
+
+        if (!triggerImage || !modal || !modalImage || !caption || !closeButton) {
+            return;
+        }
+
+        triggerImage.addEventListener('click', function () {
+            modal.style.display = 'block';
+            modalImage.src = this.src;
+            caption.innerHTML = this.alt || '';
+        });
+
+        closeButton.addEventListener('click', function () {
+            modal.style.display = 'none';
+        });
+
+        modal.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.style.display === 'block') {
+                modal.style.display = 'none';
+            }
+        });
+    });
+</script>
