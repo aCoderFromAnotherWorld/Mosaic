@@ -5,10 +5,11 @@
             <div class="flex items-center">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('feed') }}" class="flex items-center group">
-                        <x-mosaic-logo class="block h-9 w-auto text-blue-600 transition-transform group-hover:scale-105" />
-                        <span class="ml-2 text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                            Mosaic
+                    <a href="{{ route('feed') }}" class="group inline-flex items-center gap-3">
+                        
+                        <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent transition group-hover:tracking-tight">
+                            <!-- {{ config('app.name', 'Mosaic') }} -->
+                              Mosaic
                         </span>
                     </a>
                 </div>
@@ -177,7 +178,7 @@
                                  alt="{{ Auth::user()->name }}">
                             <div class="hidden lg:block text-left">
                                 <div class="text-sm font-semibold text-gray-900">{{ Auth::user()->name }}</div>
-                                <div class="text-xs text-gray-500">@{{ Auth::user()->username }}</div>
+                                <div class="text-xs text-gray-500">{{ '@' . (Auth::user()->username ?? Auth::user()->email) }}</div>
                             </div>
                         </div>
                         <svg class="w-4 h-4 text-gray-500 transition-transform duration-200" 
@@ -206,7 +207,7 @@
                                      alt="{{ Auth::user()->name }}">
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-semibold text-gray-900 truncate">{{ Auth::user()->name }}</p>
-                                    <p class="text-xs text-gray-600 truncate">@{{ Auth::user()->username }}</p>
+                                    <p class="text-xs text-gray-600 truncate">{{ '@' . (Auth::user()->username ?? Auth::user()->email) }}</p>
                                 </div>
                             </div>
                         </div>

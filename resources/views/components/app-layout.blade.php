@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Social Media') }}</title>
+    <title>{{ config('app.name', 'Mosaic') }}</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -23,7 +23,7 @@
                     <!-- Logo -->
                     <div class="flex-shrink-0 flex items-center">
                         <a href="{{ route('feed') }}" class="text-2xl font-bold text-blue-600">
-                            SocialApp
+                            Mosaic
                         </a>
                     </div>
 

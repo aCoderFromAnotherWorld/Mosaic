@@ -64,7 +64,7 @@
                                                         </a>
                                                     </h4>
                                                     <p class="text-gray-600 dark:text-gray-400 text-sm">
-                                                        @{{ $user->username }}
+                                                        {{ '@' . $user->username }}
                                                     </p>
                                                     @if($user->bio)
                                                         <p class="text-gray-700 dark:text-gray-300 text-sm mt-1">
