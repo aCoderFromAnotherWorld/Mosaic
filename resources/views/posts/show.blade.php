@@ -20,28 +20,40 @@
                         </div>
 
                         @if($post->user_id === auth()->id())
-                            <div class="relative">
+                            <div class="relative" data-dropdown>
                                 <button type="button"
-                                        data-action-menu-toggle
-                                        data-menu-id="post-action-menu-{{ $post->id }}"
-                                        aria-haspopup="true"
+                                        id="post-action-menu-trigger-{{ $post->id }}"
+                                        onclick="toggleDropdown(this)"
+                                        aria-haspopup="menu"
+                                        aria-controls="post-action-menu-{{ $post->id }}"
                                         aria-expanded="false"
-                                        class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                                        class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-50 transition-colors">
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
                                     </svg>
                                 </button>
 
                                 <div id="post-action-menu-{{ $post->id }}"
-                                     data-action-menu
-                                     class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
-                                    <a href="{{ route('posts.edit', $post) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                     data-dropdown-content
+                                     class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20"
+                                     role="menu"
+                                     aria-labelledby="post-action-menu-trigger-{{ $post->id }}">
+                                    <a href="{{ route('posts.edit', $post) }}"
+                                       data-dropdown-item
+                                       role="menuitem"
+                                       tabindex="-1"
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                         Edit Post
                                     </a>
                                     <form method="POST" action="{{ route('posts.destroy', $post) }}">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" onclick="return confirm('Are you sure you want to delete this post?')" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                        <button type="submit"
+                                                data-dropdown-item
+                                                role="menuitem"
+                                                tabindex="-1"
+                                                onclick="return confirm('Are you sure you want to delete this post?')"
+                                                class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50 transition-colors">
                                             Delete Post
                                         </button>
                                     </form>
@@ -251,48 +263,20 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const menus = document.querySelectorAll('[data-action-menu]');
-            const toggles = document.querySelectorAll('[data-action-menu-toggle]');
-
-            if (!menus.length || !toggles.length) {
-                return;
+        function toggleDropdown(button) {
+            const menu = button.nextElementSibling;
+            if (menu) {
+                menu.classList.toggle('hidden');
             }
+        }
 
-            const closeMenus = () => {
-                menus.forEach(menu => menu.classList.add('hidden'));
-                toggles.forEach(button => button.setAttribute('aria-expanded', 'false'));
-            };
-
-            toggles.forEach(button => {
-                button.addEventListener('click', event => {
-                    event.stopPropagation();
-                    const menuId = button.getAttribute('data-menu-id');
-                    const menu = document.getElementById(menuId);
-                    if (!menu) {
-                        return;
-                    }
-
-                    const isHidden = menu.classList.contains('hidden');
-                    closeMenus();
-
-                    if (isHidden) {
-                        menu.classList.remove('hidden');
-                        button.setAttribute('aria-expanded', 'true');
-                    }
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.relative')) {
+                document.querySelectorAll('[data-dropdown-content]').forEach(function(menu) {
+                    menu.classList.add('hidden');
                 });
-            });
-
-            menus.forEach(menu => {
-                menu.addEventListener('click', event => event.stopPropagation());
-            });
-
-            document.addEventListener('click', closeMenus);
-            document.addEventListener('keydown', event => {
-                if (event.key === 'Escape') {
-                    closeMenus();
-                }
-            });
+            }
         });
 
         function toggleReaction(postId, action) {

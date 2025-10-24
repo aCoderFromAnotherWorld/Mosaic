@@ -23,28 +23,40 @@
                             </div>
 
                             @if($post->user_id === auth()->id())
-                                <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                                    <button @click="open = !open" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                                <div class="relative" data-dropdown>
+                                    <button type="button"
+                                            id="post-action-menu-trigger-{{ $post->id }}"
+                                            onclick="toggleDropdown(this)"
+                                            aria-haspopup="menu"
+                                            aria-controls="post-action-menu-{{ $post->id }}"
+                                            aria-expanded="false"
+                                        class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-50 transition-colors">
                                         <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                            <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4z"></path>
                                         </svg>
                                     </button>
 
-                                    <div x-show="open"
-                                         x-transition:enter="transition ease-out duration-200"
-                                         x-transition:enter-start="opacity-0 scale-95"
-                                         x-transition:enter-end="opacity-100 scale-100"
-                                         x-transition:leave="transition ease-in duration-75"
-                                         x-transition:leave-start="opacity-100 scale-100"
-                                         x-transition:leave-end="opacity-0 scale-95"
-                                         class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-10 border border-gray-200">
-                                        <a href="{{ route('posts.edit', $post) }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors">
+                                    <div id="post-action-menu-{{ $post->id }}"
+                                         data-dropdown-content
+                                         class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-20 border border-gray-200"
+                                         role="menu"
+                                         aria-labelledby="post-action-menu-trigger-{{ $post->id }}">
+                                        <a href="{{ route('posts.edit', $post) }}"
+                                           data-dropdown-item
+                                           role="menuitem"
+                                           tabindex="-1"
+                                           class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors">
                                             Edit Post
                                         </a>
                                         <form method="POST" action="{{ route('posts.destroy', $post) }}">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" onclick="return confirm('Are you sure you want to delete this post?')" class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors">
+                                            <button type="submit"
+                                                    data-dropdown-item
+                                                    role="menuitem"
+                                                    tabindex="-1"
+                                                    onclick="return confirm('Are you sure you want to delete this post?')"
+                                                    class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors">
                                                 Delete Post
                                             </button>
                                         </form>
@@ -205,6 +217,22 @@
     </div>
 
     <script>
+        function toggleDropdown(button) {
+            const menu = button.nextElementSibling;
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.relative')) {
+                document.querySelectorAll('[data-dropdown-content]').forEach(function(menu) {
+                    menu.classList.add('hidden');
+                });
+            }
+        });
+
         function toggleReaction(postId, action) {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
