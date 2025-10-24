@@ -40,42 +40,48 @@
                             @if($users->count() > 0)
                                 <div class="space-y-5">
                                     @foreach($users as $user)
-                                        <div class="flex items-center justify-between p-5 border-2 border-gray-100 rounded-xl hover:bg-gray-50 transition-all duration-300 transform hover:scale-[1.01] shadow-sm hover:shadow-md group">
-                                            <div class="flex items-center space-x-5">
+                                        <div class="flex items-center justify-between p-5 border-2 border-gray-100 rounded-xl hover:bg-gray-50 transition-all duration-300 shadow-sm hover:shadow-md group">
+                                            <div class="flex items-start space-x-5 flex-1 min-w-0">
                                                 <!-- Profile Picture -->
-                                                <div class="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300 border-2 border-white">
-                                                    @if($user->profile_picture)
-                                                        <img src="{{ asset('storage/' . $user->profile_picture) }}"
-                                                             alt="{{ $user->name }}"
-                                                             class="w-14 h-14 rounded-full object-cover border-2 border-black shadow-inner">
-                                                    @else
-                                                        <span class="text-gray-700 font-bold text-xl">
-                                                            {{ strtoupper(substr($user->name, 0, 1)) }}
-                                                        </span>
-                                                    @endif
+                                                <div class="flex-shrink-0">
+                                                    <div class="w-14 h-14 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow duration-300 border-2 border-white">
+                                                        @if($user->profile_picture)
+                                                            <img src="{{ asset('storage/' . $user->profile_picture) }}"
+                                                                 alt="{{ $user->name }}"
+                                                                 class="w-14 h-14 rounded-full object-cover border-2 border-white shadow-inner">
+                                                        @else
+                                                            <span class="text-gray-700 font-bold text-xl">
+                                                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                                                            </span>
+                                                        @endif
+                                                    </div>
                                                 </div>
 
                                                 <!-- User Info -->
-                                                <div class="border-l-2 border-gray-100 pl-5">
-                                                    <h4 class="font-bold text-gray-900 text-lg">
-                                                        <a href="{{ route('profile.show', $user->username) }}"
-                                                           class="hover:text-blue-600 transition-colors duration-300">
-                                                            {{ $user->name }}
-                                                        </a>
-                                                    </h4>
-                                                    <p class="text-gray-600 text-sm font-medium">
-                                                        {{ '@' . $user->username }}
-                                                    </p>
+                                                <div class="flex-1 min-w-0">
+                                                    <div class="flex items-center gap-3 mb-1">
+                                                        <h4 class="font-bold text-gray-900 text-lg truncate">
+                                                            <a href="{{ route('profile.show', $user->username) }}"
+                                                               class="hover:text-blue-600 transition-colors duration-300">
+                                                                {{ $user->name }}
+                                                            </a>
+                                                        </h4>
+                                                        <p class="text-gray-600 text-sm font-medium truncate">
+                                                            {{ '@' . $user->username }}
+                                                        </p>
+                                                    </div>
+                                                    
                                                     @if($user->bio)
-                                                        <p class="text-gray-700 text-sm mt-2 leading-relaxed border-t border-gray-100 pt-2">
+                                                        <p class="text-gray-700 text-sm mt-2 leading-relaxed line-clamp-2">
                                                             {{ Str::limit($user->bio, 100) }}
                                                         </p>
                                                     @endif
-                                                    <div class="flex items-center space-x-5 mt-3 text-xs text-gray-600 font-medium">
-                                                        <span class="bg-gray-100 px-3 py-1 rounded-full border border-gray-200 shadow-sm">
+                                                    
+                                                    <div class="flex items-center gap-4 mt-3 text-xs text-gray-600 font-medium">
+                                                        <span class="bg-gray-100 px-3 py-1 rounded-full border border-gray-200 shadow-sm whitespace-nowrap">
                                                             {{ $user->followers_count }} followers
                                                         </span>
-                                                        <span class="bg-gray-100 px-3 py-1 rounded-full border border-gray-200 shadow-sm">
+                                                        <span class="bg-gray-100 px-3 py-1 rounded-full border border-gray-200 shadow-sm whitespace-nowrap">
                                                             {{ $user->following_count }} following
                                                         </span>
                                                     </div>
@@ -83,75 +89,68 @@
                                             </div>
 
                                             <!-- Action Buttons -->
-                                            <div class="flex items-center space-x-3">
-                                                @if($user->is_friend)
-                                                    <!-- Remove Friend
-                                                    <form method="POST" action="{{ route('users.remove-friend', $user) }}" class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                                class="px-5 py-2.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-red-700">
-                                                            Remove Friend
-                                                        </button>
-                                                    </form> -->
-                                                    <!-- Remove Friend -->
-                                                    <form method="POST" action="{{ route('users.remove-friend', $user) }}" class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                                class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
-                                                            Remove Friend
-                                                        </button>
-                                                    </form>
-                                                @elseif($user->has_received_request)
-                                                    <!-- Accept/Decline Friend Request -->
-                                                    <div class="flex space-x-3">
-                                                        <form method="POST" action="{{ route('users.accept-friend', $user) }}" class="inline">
+                                            <div class="flex-shrink-0 ml-4">
+                                                <div class="flex flex-col sm:flex-row gap-2">
+                                                    @if($user->is_friend)
+                                                        <!-- Remove Friend -->
+                                                        <form method="POST" action="{{ route('users.remove-friend', $user) }}" class="inline">
                                                             @csrf
+                                                            @method('DELETE')
                                                             <button type="submit"
-                                                                    class="px-5 py-2.5 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-green-700">
-                                                                Accept
+                                                                    class="w-full px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-red-700 whitespace-nowrap">
+                                                                Remove Friend
                                                             </button>
                                                         </form>
-                                                        <form method="POST" action="{{ route('users.decline-friend', $user) }}" class="inline">
+                                                    @elseif($user->has_received_request)
+                                                        <!-- Accept/Decline Friend Request -->
+                                                        <div class="flex flex-col sm:flex-row gap-2">
+                                                            <form method="POST" action="{{ route('users.accept-friend', $user) }}" class="inline">
+                                                                @csrf
+                                                                <button type="submit"
+                                                                        class="w-full px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-green-700 whitespace-nowrap">
+                                                                    Accept
+                                                                </button>
+                                                            </form>
+                                                            <form method="POST" action="{{ route('users.decline-friend', $user) }}" class="inline">
+                                                                @csrf
+                                                                <button type="submit"
+                                                                        class="w-full px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-700 whitespace-nowrap">
+                                                                    Decline
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    @elseif($user->has_pending_request)
+                                                        <!-- Cancel Friend Request -->
+                                                        <form method="POST" action="{{ route('users.cancel-friend-request', $user) }}" class="inline">
                                                             @csrf
+                                                            @method('DELETE')
                                                             <button type="submit"
-                                                                    class="px-5 py-2.5 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-700">
-                                                                Decline
+                                                                    class="w-full px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-700 whitespace-nowrap">
+                                                                Cancel Request
                                                             </button>
                                                         </form>
-                                                    </div>
-                                                @elseif($user->has_pending_request)
-                                                    <!-- Cancel Friend Request -->
-                                                    <form method="POST" action="{{ route('users.cancel-friend-request', $user) }}" class="inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit"
-                                                                class="px-5 py-2.5 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-700">
-                                                            Cancel Request
-                                                        </button>
-                                                    </form>
-                                                @else
-                                                    <!-- Send Friend Request -->
-                                                    <form method="POST" action="{{ route('users.friend-request', $user) }}" class="inline">
-                                                        @csrf
-                                                        <button type="submit"
-                                                                class="px-5 py-2.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-blue-700">
-                                                            Add Friend
-                                                        </button>
-                                                    </form>
-                                                @endif
+                                                    @else
+                                                        <!-- Send Friend Request -->
+                                                        <form method="POST" action="{{ route('users.friend-request', $user) }}" class="inline">
+                                                            @csrf
+                                                            <button type="submit"
+                                                                    class="w-full px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-blue-700 whitespace-nowrap">
+                                                                Add Friend
+                                                            </button>
+                                                        </form>
+                                                    @endif
 
-                                                @if(!$user->is_following && !$user->is_friend)
-                                                    <!-- Follow Button -->
-                                                    <form method="POST" action="{{ route('users.follow', $user) }}" class="inline">
-                                                        @csrf
-                                                        <button type="submit"
-                                                                class="px-5 py-2.5 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-700">
-                                                            Follow
-                                                        </button>
-                                                    </form>
-                                                @endif
+                                                    @if(!$user->is_following && !$user->is_friend)
+                                                        <!-- Follow Button -->
+                                                        <form method="POST" action="{{ route('users.follow', $user) }}" class="inline">
+                                                            @csrf
+                                                            <button type="submit"
+                                                                    class="w-full px-4 py-2 bg-gray-600 text-white text-sm rounded-lg hover:bg-gray-700 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-gray-700 whitespace-nowrap">
+                                                                Follow
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     @endforeach
@@ -183,4 +182,13 @@
             </div>
         </div>
     </div>
+
+    <style>
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+    </style>
 </x-app-layout>
