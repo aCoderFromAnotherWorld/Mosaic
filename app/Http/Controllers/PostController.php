@@ -77,9 +77,9 @@ class PostController extends Controller
             'media',
             'reactions.user',
             'comments.user',
-            'comments.likes',
+            'comments.likes.user',
             'comments.replies.user',
-            'comments.replies.likes',
+            'comments.replies.likes.user',
         ]);
         
         return view('posts.show', compact('post'));

@@ -20,9 +20,9 @@ class FeedController extends Controller
                 'media',
                 'reactions',
                 'comments.user',
-                'comments.likes',
+                'comments.likes.user',
                 'comments.replies.user',
-                'comments.replies.likes',
+                'comments.replies.likes.user',
             ])
             ->whereIn('user_id', $followingIds)
             ->latest()

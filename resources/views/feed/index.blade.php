@@ -210,6 +210,34 @@
                                                     </div>
                                                 </form>
                                             </div>
+                                            @if($comment->replies->isNotEmpty())
+                                                <div class="ml-6 mt-3 space-y-3">
+                                                    @foreach($comment->replies->take(2) as $reply)
+                                                        <div class="flex space-x-3">
+                                                            <img src="{{ $reply->user->profile_picture ? asset('storage/' . $reply->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($reply->user->name) }}" 
+                                                                 alt="{{ $reply->user->name }}" 
+                                                                 class="w-7 h-7 rounded-full object-cover border border-gray-200">
+                                                            <div class="flex-1">
+                                                                <div class="bg-gray-50 rounded-lg px-3 py-2">
+                                                                    <a href="{{ route('profile.show', $reply->user->username) }}" class="font-semibold text-xs text-gray-900 hover:text-indigo-600 transition-colors">
+                                                                        {{ $reply->user->name }}
+                                                                    </a>
+                                                                    <p class="text-xs text-gray-700 mt-1">{{ $reply->content }}</p>
+                                                                </div>
+                                                                <div class="flex items-center space-x-3 mt-1 text-[11px] text-gray-500">
+                                                                    <span>{{ $reply->created_at->diffForHumans() }}</span>
+                                                                    <a href="{{ route('posts.show', $post) }}#comment-{{ $reply->id }}" class="hover:text-indigo-600 transition-colors font-medium">View thread</a>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                    @if($comment->replies->count() > 2)
+                                                        <a href="{{ route('posts.show', $post) }}#comment-{{ $comment->id }}" class="text-xs text-indigo-600 hover:text-indigo-500 transition-colors font-medium">
+                                                            View {{ $comment->replies->count() - 2 }} more {{ Str::plural('reply', $comment->replies->count() - 2) }}
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 @endforeach
