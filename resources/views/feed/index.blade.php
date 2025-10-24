@@ -23,9 +23,9 @@
                             </div>
 
                             @if($post->user_id === auth()->id())
-                                <div class="relative" data-dropdown>
+                                <div class="relative">
                                     <button type="button"
-                                            data-dropdown-trigger
+                                            onclick="toggleDropdown(this)"
                                             aria-haspopup="menu"
                                             aria-controls="post-action-menu-{{ $post->id }}"
                                             aria-expanded="false"
@@ -36,13 +36,9 @@
                                     </button>
 
                                     <div id="post-action-menu-{{ $post->id }}"
-                                         data-dropdown-content
                                          class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-20 border border-gray-200"
                                          role="menu">
                                         <a href="{{ route('posts.edit', $post) }}"
-                                           data-dropdown-item
-                                           role="menuitem"
-                                           tabindex="-1"
                                            class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors">
                                             Edit Post
                                         </a>
@@ -50,9 +46,6 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
-                                                    data-dropdown-item
-                                                    role="menuitem"
-                                                    tabindex="-1"
                                                     onclick="return confirm('Are you sure you want to delete this post?')"
                                                     class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 transition-colors">
                                                 Delete Post
@@ -215,6 +208,21 @@
     </div>
 
     <script>
+        function toggleDropdown(button) {
+            const menu = button.nextElementSibling;
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.relative')) {
+                document.querySelectorAll('#post-action-menu-{{ $post->id }}').forEach(function(menu) {
+                    menu.classList.add('hidden');
+                });
+            }
+        });
 
         function toggleReaction(postId, action) {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
