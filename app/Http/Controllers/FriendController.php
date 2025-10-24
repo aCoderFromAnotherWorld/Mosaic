@@ -8,37 +8,78 @@ use Illuminate\Support\Facades\DB;
 
 class FriendController extends Controller
 {
+    public function index()
+    {
+        $user = auth()->user();
+
+        $pendingRequests = $user->friendRequests()
+            ->withCount(['followers as followers_count', 'following as following_count'])
+            ->orderByPivot('created_at', 'desc')
+            ->get();
+
+        $friends = $user->friends()
+            ->withCount(['followers as followers_count', 'following as following_count'])
+            ->orderBy('name')
+            ->get();
+
+        return view('friends.index', compact('pendingRequests', 'friends'));
+    }
+
     public function sendRequest(User $user)
     {
-        if (auth()->id() === $user->id) {
+        $authUser = auth()->user();
+
+        if ($authUser->id === $user->id) {
             return back()->with('error', 'You cannot send a friend request to yourself.');
         }
 
-        if (auth()->user()->isFriend($user->id)) {
+        if ($authUser->isFriend($user->id)) {
             return back()->with('error', 'You are already friends with this user.');
         }
 
-        if (auth()->user()->friendRequests()->where('receiver_id', $user->id)->exists()) {
-            return back()->with('error', 'You have already sent a friend request to this user.');
-        }
+        $incomingRequest = DB::table('friend_requests')
+            ->where('sender_id', $user->id)
+            ->where('receiver_id', $authUser->id)
+            ->where('status', 'pending')
+            ->first();
 
-        if ($user->friendRequests()->where('receiver_id', auth()->id())->exists()) {
+        if ($incomingRequest) {
             return back()->with('error', 'This user has already sent you a friend request.');
         }
 
-        DB::table('friend_requests')->insert([
-            'sender_id' => auth()->id(),
-            'receiver_id' => $user->id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $existingRequest = DB::table('friend_requests')
+            ->where('sender_id', $authUser->id)
+            ->where('receiver_id', $user->id)
+            ->first();
+
+        if ($existingRequest && $existingRequest->status === 'pending') {
+            return back()->with('error', 'You have already sent a friend request to this user.');
+        }
+
+        if ($existingRequest) {
+            DB::table('friend_requests')
+                ->where('id', $existingRequest->id)
+                ->update([
+                    'status' => 'pending',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+        } else {
+            DB::table('friend_requests')->insert([
+                'sender_id' => $authUser->id,
+                'receiver_id' => $user->id,
+                'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         // Create notification for friend request
         $user->notifications()->create([
-            'sender_id' => auth()->id(),
+            'sender_id' => $authUser->id,
             'type' => 'friend_request',
-            'message' => '<strong>' . auth()->user()->name . '</strong> sent you a friend request.',
-            'data' => ['url' => route('profile.show', auth()->user()->username)],
+            'message' => '<strong>' . $authUser->name . '</strong> sent you a friend request.',
+            'data' => ['url' => route('profile.show', $authUser->username)],
         ]);
 
         return back()->with('success', 'Friend request sent successfully.');

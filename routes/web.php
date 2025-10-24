@@ -58,6 +58,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/users/{user}/decline-friend', [FriendController::class, 'declineRequest'])->name('users.decline-friend');
     Route::delete('/users/{user}/remove-friend', [FriendController::class, 'removeFriend'])->name('users.remove-friend');
     Route::delete('/users/{user}/cancel-friend-request', [FriendController::class, 'cancelRequest'])->name('users.cancel-friend-request');
+    Route::get('/friends', [FriendController::class, 'index'])->name('friends.index');
 
     // Messages
     Route::get('/messages', [MessageController::class, 'index'])->name('messages.index');

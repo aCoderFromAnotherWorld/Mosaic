@@ -1,4 +1,7 @@
 <nav x-data="{ open: false, notificationsOpen: false, profileOpen: false }" class="bg-white/95 backdrop-blur-md border-b border-gray-100/80 shadow-sm sticky top-0 z-50">
+    @php
+        $pendingFriendRequests = Auth::user()->friendRequests()->count();
+    @endphp
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -6,10 +9,11 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('feed') }}" class="group inline-flex items-center gap-3">
-                        
+                        <span class="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-lg font-semibold text-white shadow-lg transition group-hover:scale-105">
+                            M
+                        </span>
                         <span class="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent transition group-hover:tracking-tight">
-                            <!-- {{ config('app.name', 'Mosaic') }} -->
-                              Mosaic
+                            {{ config('app.name', 'Mosaic') }}
                         </span>
                     </a>
                 </div>
@@ -31,6 +35,21 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <span class="font-medium">{{ __('Search') }}</span>
+                        </div>
+                    </x-nav-link>
+
+                    <x-nav-link :href="route('friends.index')" :active="request()->routeIs('friends.*')" class="group relative">
+                        <div class="flex items-center space-x-2 px-4 py-2 rounded-xl transition-all duration-200 hover:bg-cyan-50 hover:text-cyan-600">
+                            <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 8a3 3 0 11-6 0 3 3 0 016 0zm-9 8a3 3 0 100-6 3 3 0 000 6zm9 0a3 3 0 11-6 0 3 3 0 016 0zM15 14l1.553 1.553a2.2 2.2 0 01.647 1.557v.64A1.25 1.25 0 0116 19.75h-2.5" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l-1.553 1.553a2.2 2.2 0 00-.647 1.557v.64c0 .69.56 1.25 1.25 1.25H10" />
+                            </svg>
+                            <span class="font-medium">{{ __('Friends') }}</span>
+                            @if($pendingFriendRequests > 0)
+                                <span class="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-cyan-500 px-1 text-[0.65rem] font-semibold text-white">
+                                    {{ $pendingFriendRequests }}
+                                </span>
+                            @endif
                         </div>
                     </x-nav-link>
 
