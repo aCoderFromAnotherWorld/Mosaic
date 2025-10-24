@@ -20,21 +20,21 @@
                         </div>
 
                         @if($post->user_id === auth()->id())
-                            <div class="relative" x-data="{ open: false }" @click.away="open = false">
-                                <button @click="open = !open" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                            <div class="relative">
+                                <button type="button"
+                                        data-action-menu-toggle
+                                        data-menu-id="post-action-menu-{{ $post->id }}"
+                                        aria-haspopup="true"
+                                        aria-expanded="false"
+                                        class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
                                     <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
                                     </svg>
                                 </button>
 
-                                <div x-show="open" x-cloak
-                                     x-transition:enter="transition ease-out duration-200"
-                                     x-transition:enter-start="opacity-0 scale-95"
-                                     x-transition:enter-end="opacity-100 scale-100"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 scale-100"
-                                     x-transition:leave-end="opacity-0 scale-95"
-                                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
+                                <div id="post-action-menu-{{ $post->id }}"
+                                     data-action-menu
+                                     class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-10">
                                     <a href="{{ route('posts.edit', $post) }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                                         Edit Post
                                     </a>
@@ -251,6 +251,50 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menus = document.querySelectorAll('[data-action-menu]');
+            const toggles = document.querySelectorAll('[data-action-menu-toggle]');
+
+            if (!menus.length || !toggles.length) {
+                return;
+            }
+
+            const closeMenus = () => {
+                menus.forEach(menu => menu.classList.add('hidden'));
+                toggles.forEach(button => button.setAttribute('aria-expanded', 'false'));
+            };
+
+            toggles.forEach(button => {
+                button.addEventListener('click', event => {
+                    event.stopPropagation();
+                    const menuId = button.getAttribute('data-menu-id');
+                    const menu = document.getElementById(menuId);
+                    if (!menu) {
+                        return;
+                    }
+
+                    const isHidden = menu.classList.contains('hidden');
+                    closeMenus();
+
+                    if (isHidden) {
+                        menu.classList.remove('hidden');
+                        button.setAttribute('aria-expanded', 'true');
+                    }
+                });
+            });
+
+            menus.forEach(menu => {
+                menu.addEventListener('click', event => event.stopPropagation());
+            });
+
+            document.addEventListener('click', closeMenus);
+            document.addEventListener('keydown', event => {
+                if (event.key === 'Escape') {
+                    closeMenus();
+                }
+            });
+        });
+
         function toggleReaction(postId, action) {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
