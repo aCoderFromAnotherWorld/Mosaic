@@ -41,7 +41,7 @@
                                     @endif
                                     
                                     <div>
-                                        <div class="px-4 py-2 rounded-2xl {{ $message->user_id === auth()->id() ? 'bg-blue-600 text-white' : 'bg-white text-gray-900' }}">
+                                        <div class="px-4 py-2 rounded-2xl {{ $message->user_id === auth()->id() ? 'bg-blue-600 text-white' : 'bg-green-500 text-white' }}">
                                             <p class="break-words">{{ $message->message }}</p>
                                         </div>
                                         <p class="text-xs text-gray-500 mt-1 {{ $message->user_id === auth()->id() ? 'text-right' : 'text-left' }}">

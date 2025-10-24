@@ -177,7 +177,7 @@
     }
 
     .profile-avatar-img {
-        border-radius: 50%;
+        /* border-radius: 50%; */
         cursor: pointer;
         transition: 0.3s;
     }
