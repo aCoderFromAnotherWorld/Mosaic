@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\CommentReaction;
 
 class User extends Authenticatable
 {
@@ -121,5 +122,15 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'friend_requests', 'sender_id', 'receiver_id')
                     ->wherePivot('status', 'pending')
                     ->withTimestamps();
+    }
+
+    public function commentReactions()
+    {
+        return $this->hasMany(CommentReaction::class);
+    }
+
+    public function hasLikedComment(int $commentId): bool
+    {
+        return $this->commentReactions()->where('comment_id', $commentId)->exists();
     }
 }

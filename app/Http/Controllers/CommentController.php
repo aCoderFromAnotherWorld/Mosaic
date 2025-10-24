@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\Comment;
+use App\Models\CommentReaction;
 use Illuminate\Http\Request;
 
 class CommentController extends Controller
@@ -48,5 +49,58 @@ class CommentController extends Controller
         $comment->delete();
 
         return back()->with('success', 'Comment deleted successfully!');
+    }
+
+    public function like(Request $request, Comment $comment)
+    {
+        $user = $request->user();
+
+        $reaction = CommentReaction::updateOrCreate(
+            [
+                'user_id' => $user->id,
+                'comment_id' => $comment->id,
+            ],
+            [
+                'type' => 'like',
+            ]
+        );
+
+        if ($comment->user_id !== $user->id && $reaction->wasRecentlyCreated) {
+            $comment->user->notifications()->create([
+                'sender_id' => $user->id,
+                'type' => 'comment_like',
+                'message' => '<strong>' . e($user->name) . '</strong> liked your comment.',
+                'data' => [
+                    'url' => route('posts.show', $comment->post) . '#comment-' . $comment->id,
+                    'post_id' => $comment->post_id,
+                    'comment_id' => $comment->id,
+                ],
+            ]);
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'likes_count' => $comment->likes()->count(),
+            ]);
+        }
+
+        return back();
+    }
+
+    public function unlike(Request $request, Comment $comment)
+    {
+        CommentReaction::where('comment_id', $comment->id)
+            ->where('user_id', $request->user()->id)
+            ->delete();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'likes_count' => $comment->likes()->count(),
+            ]);
+        }
+
+        return back();
     }
 }

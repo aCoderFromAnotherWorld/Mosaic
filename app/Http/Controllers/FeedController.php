@@ -15,7 +15,15 @@ class FeedController extends Controller
         $followingIds = $user->following()->pluck('users.id');
         $followingIds->push($user->id);
         
-        $posts = Post::with(['user', 'media', 'reactions', 'comments.user'])
+        $posts = Post::with([
+                'user',
+                'media',
+                'reactions',
+                'comments.user',
+                'comments.likes',
+                'comments.replies.user',
+                'comments.replies.likes',
+            ])
             ->whereIn('user_id', $followingIds)
             ->latest()
             ->paginate(10);

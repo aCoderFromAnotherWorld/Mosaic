@@ -99,26 +99,34 @@
                         $userReaction = $post->reactions->firstWhere('user_id', auth()->id());
                     @endphp
                     <div class="border-t border-gray-200 px-4 sm:px-6 py-3 sm:py-4">
-                        <div id="reaction-container-{{ $post->id }}" class="flex items-center justify-around">
+                        <div class="flex items-center justify-around">
                             <!-- Like / Unlike Button -->
                             @if($userReaction)
-                                <button type="button" onclick="toggleReaction({{ $post->id }}, 'unlike')" class="flex items-center space-x-1 sm:space-x-2 group">
-                                    <svg class="w-5 h-5 sm:w-6 sm:h-6 fill-red-500 text-red-500 group-hover:scale-110 transition-all" viewBox="0 0 24 24">
-                                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                                    </svg>
-                                    <span class="text-sm sm:text-base font-medium text-red-500 group-hover:text-red-600 transition-colors">{{ __('Unlike') }}</span>
-                                </button>
+                                <form method="POST" action="{{ route('posts.unreact', $post) }}" class="flex items-center">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="flex items-center space-x-1 sm:space-x-2 group">
+                                        <svg class="w-5 h-5 sm:w-6 sm:h-6 fill-red-500 text-red-500 group-hover:scale-110 transition-all" viewBox="0 0 24 24">
+                                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                        </svg>
+                                        <span class="text-sm sm:text-base font-medium text-red-500 group-hover:text-red-600 transition-colors">{{ __('Unlike') }}</span>
+                                    </button>
+                                </form>
                             @else
-                                <button type="button" onclick="toggleReaction({{ $post->id }}, 'like')" class="flex items-center space-x-1 sm:space-x-2 group">
-                                    <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-red-500 group-hover:scale-110 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                                    </svg>
-                                    <span class="text-sm sm:text-base font-medium text-gray-700 group-hover:text-red-500 transition-colors">{{ __('Like') }}</span>
-                                </button>
+                                <form method="POST" action="{{ route('posts.react', $post) }}" class="flex items-center">
+                                    @csrf
+                                    <input type="hidden" name="type" value="like">
+                                    <button type="submit" class="flex items-center space-x-1 sm:space-x-2 group">
+                                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-red-500 group-hover:scale-110 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                                        </svg>
+                                        <span class="text-sm sm:text-base font-medium text-gray-700 group-hover:text-red-500 transition-colors">{{ __('Like') }}</span>
+                                    </button>
+                                </form>
                             @endif
 
                         <!-- Comment Button -->
-                        <button onclick="document.getElementById('comment-input').focus()" class="flex items-center space-x-1 sm:space-x-2 group">
+                            <button onclick="document.getElementById('comment-input').focus()" class="flex items-center space-x-1 sm:space-x-2 group">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-indigo-500 group-hover:scale-110 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
                             </svg>
@@ -166,7 +174,11 @@
                         <h3 class="text-base sm:text-lg font-semibold text-gray-900">Comments</h3>
                         
                         @foreach($post->comments as $comment)
-                            <div class="space-y-3">
+                            @php
+                                $commentLikesCount = $comment->likes->count();
+                                $commentLiked = $comment->isLikedBy(auth()->user());
+                            @endphp
+                            <div class="space-y-3" id="comment-{{ $comment->id }}">
                                 <!-- Main Comment -->
                                 <div class="flex space-x-3">
                                     <img src="{{ $comment->user->profile_picture ? asset('storage/' . $comment->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($comment->user->name) }}" 
@@ -181,8 +193,25 @@
                                         </div>
                                         <div class="flex items-center space-x-4 mt-2 text-xs sm:text-sm text-gray-500">
                                             <span>{{ $comment->created_at->diffForHumans() }}</span>
-                                            <button onclick="toggleReplyForm({{ $comment->id }})" class="hover:text-indigo-600 transition-colors font-medium">Reply</button>
-                                            @if($comment->user_id === auth()->id())
+                                            <div class="flex items-center space-x-2">
+                                                @if($commentLiked)
+                                                    <form method="POST" action="{{ route('comments.unlike', $comment) }}" class="inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="hover:text-red-600 transition-colors font-medium">Unlike</button>
+                                                    </form>
+                                                @else
+                                                    <form method="POST" action="{{ route('comments.like', $comment) }}" class="inline">
+                                                        @csrf
+                                                        <button type="submit" class="hover:text-gray-700 transition-colors font-medium">Like</button>
+                                                    </form>
+                                                @endif
+                                                @if($commentLikesCount > 0)
+                                                    <span class="text-gray-400">{{ $commentLikesCount }} {{ Str::plural('like', $commentLikesCount) }}</span>
+                                                @endif
+                                            </div>
+                                            <button type="button" onclick="toggleReplyForm({{ $comment->id }})" class="hover:text-indigo-600 transition-colors font-medium">Reply</button>
+                                            @can('delete', $comment)
                                                 <form method="POST" action="{{ route('comments.destroy', $comment) }}" class="inline">
                                                     @csrf
                                                     @method('DELETE')
@@ -190,7 +219,7 @@
                                                         Delete
                                                     </button>
                                                 </form>
-                                            @endif
+                                            @endcan
                                         </div>
 
                                         <!-- Reply Form -->
@@ -215,6 +244,10 @@
                                         @if($comment->replies->isNotEmpty())
                                             <div class="ml-6 sm:ml-8 mt-3 space-y-3">
                                                 @foreach($comment->replies as $reply)
+                                                    @php
+                                                        $replyLikesCount = $reply->likes->count();
+                                                        $replyLiked = $reply->isLikedBy(auth()->user());
+                                                    @endphp
                                                     <div class="flex space-x-3">
                                                         <img src="{{ $reply->user->profile_picture ? asset('storage/' . $reply->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($reply->user->name) }}" 
                                                              alt="{{ $reply->user->name }}" 
@@ -228,7 +261,24 @@
                                                             </div>
                                                             <div class="flex items-center space-x-4 mt-1 text-xs text-gray-500">
                                                                 <span>{{ $reply->created_at->diffForHumans() }}</span>
-                                                                @if($reply->user_id === auth()->id())
+                                                                <div class="flex items-center space-x-2">
+                                                                    @if($replyLiked)
+                                                                        <form method="POST" action="{{ route('comments.unlike', $reply) }}" class="inline">
+                                                                            @csrf
+                                                                            @method('DELETE')
+                                                                            <button type="submit" class="hover:text-red-600 transition-colors font-medium">Unlike</button>
+                                                                        </form>
+                                                                    @else
+                                                                        <form method="POST" action="{{ route('comments.like', $reply) }}" class="inline">
+                                                                            @csrf
+                                                                            <button type="submit" class="hover:text-gray-700 transition-colors font-medium">Like</button>
+                                                                        </form>
+                                                                    @endif
+                                                                    @if($replyLikesCount > 0)
+                                                                        <span class="text-gray-400">{{ $replyLikesCount }} {{ Str::plural('like', $replyLikesCount) }}</span>
+                                                                    @endif
+                                                                </div>
+                                                                @can('delete', $reply)
                                                                     <form method="POST" action="{{ route('comments.destroy', $reply) }}" class="inline">
                                                                         @csrf
                                                                         @method('DELETE')
@@ -236,7 +286,7 @@
                                                                             Delete
                                                                         </button>
                                                                     </form>
-                                                                @endif
+                                                                @endcan
                                                             </div>
                                                         </div>
                                                     </div>
@@ -262,108 +312,18 @@
 
     <script>
 
-        function toggleReaction(postId, action) {
-            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            if (action === 'like') {
-                fetch(`/posts/${postId}/react`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({ type: 'like' })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateReactionUI(postId, true, data.reactions_count);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            } else if (action === 'unlike') {
-                fetch(`/posts/${postId}/react`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': csrfToken,
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        updateReactionUI(postId, false, data.reactions_count);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            }
-        }
-
-        function updateReactionUI(postId, hasReaction, count) {
-            const container = document.getElementById('reaction-container-' + postId);
-            const countElement = document.getElementById('reaction-count-' + postId);
-
-            if (hasReaction) {
-                container.innerHTML = `
-                    <button type="button" onclick="toggleReaction(${postId}, 'unlike')" class="flex items-center space-x-1 sm:space-x-2 group">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 fill-red-500 text-red-500 group-hover:scale-110 transition-all" viewBox="0 0 24 24">
-                            <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                        </svg>
-                        <span class="text-sm sm:text-base font-medium text-red-500 group-hover:text-red-600 transition-colors">{{ __('Unlike') }}</span>
-                    </button>
-
-                    <!-- Comment Button -->
-                    <button onclick="document.getElementById('comment-input').focus()" class="flex items-center space-x-1 sm:space-x-2 group">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-indigo-500 group-hover:scale-110 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                        <span class="text-sm sm:text-base font-medium text-gray-700 group-hover:text-indigo-500 transition-colors">Comment</span>
-                    </button>
-
-                    <!-- Share Button -->
-                    <button onclick="sharePost()" class="flex items-center space-x-1 sm:space-x-2 group">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-green-500 group-hover:scale-110 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
-                        </svg>
-                        <span class="text-sm sm:text-base font-medium text-gray-700 group-hover:text-green-500 transition-colors">Share</span>
-                    </button>
-                `;
-            } else {
-                container.innerHTML = `
-                    <button type="button" onclick="toggleReaction(${postId}, 'like')" class="flex items-center space-x-1 sm:space-x-2 group">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-red-500 group-hover:scale-110 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
-                        </svg>
-                        <span class="text-sm sm:text-base font-medium text-gray-700 group-hover:text-red-500 transition-colors">{{ __('Like') }}</span>
-                    </button>
-
-                    <!-- Comment Button -->
-                    <button onclick="document.getElementById('comment-input').focus()" class="flex items-center space-x-1 sm:space-x-2 group">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-indigo-500 group-hover:scale-110 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-                        </svg>
-                        <span class="text-sm sm:text-base font-medium text-gray-700 group-hover:text-indigo-500 transition-colors">Comment</span>
-                    </button>
-
-                    <!-- Share Button -->
-                    <button onclick="sharePost()" class="flex items-center space-x-1 sm:space-x-2 group">
-                        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-hover:text-green-500 group-hover:scale-110 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
-                        </svg>
-                        <span class="text-sm sm:text-base font-medium text-gray-700 group-hover:text-green-500 transition-colors">Share</span>
-                    </button>
-                `;
-            }
-
-            countElement.textContent = `${count} ${count === 1 ? 'reaction' : 'reactions'}`;
-        }
-
         function toggleReplyForm(commentId) {
             const form = document.getElementById('reply-form-' + commentId);
+            if (!form) {
+                return;
+            }
+
             form.classList.toggle('hidden');
             if (!form.classList.contains('hidden')) {
-                form.querySelector('textarea').focus();
+                const textarea = form.querySelector('textarea');
+                if (textarea) {
+                    textarea.focus();
+                }
             }
         }
 
@@ -391,3 +351,4 @@
         }
     </script>
 </x-app-layout>
+
