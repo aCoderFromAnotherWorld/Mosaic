@@ -25,6 +25,7 @@
                                 @php
                                     $otherUser = $conversation->users->firstWhere('id', '!=', auth()->id()) ?? $conversation->users->first();
                                     $lastMessage = $conversation->messages()->latest()->first();
+                                    $hasUnread = $conversation->messages_count > 0;
                                 @endphp
                                 @continue(!$otherUser)
                                 <a href="{{ route('messages.show', $conversation) }}" 
@@ -34,7 +35,7 @@
                                          class="w-12 h-12 rounded-full object-cover flex-shrink-0 border-2 border-gray-100">
                                     <div class="ml-3 flex-1 min-w-0">
                                         <div class="flex items-center justify-between">
-                                            <p class="text-sm font-semibold text-gray-900 truncate">
+                                            <p class="text-gray-900 truncate {{ $hasUnread ? 'text-base font-[1000]' : 'text-sm font-semibold' }}">
                                                 {{ $otherUser->name ?? __('Unknown User') }}
                                             </p>
                                             @if($lastMessage)
@@ -44,7 +45,7 @@
                                             @endif
                                         </div>
                                         @if($lastMessage)
-                                            <p class="text-sm text-gray-600 truncate">
+                                            <p class="text-sm truncate {{ $hasUnread ? 'font-semibold text-gray-900' : 'text-gray-600' }}">
                                                 {{ $lastMessage->user_id === auth()->id() ? 'You: ' : '' }}
                                                 {{ $lastMessage->message }}
                                             </p>
