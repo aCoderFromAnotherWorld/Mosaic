@@ -11,6 +11,8 @@ class ProfileController extends Controller
 {
     public function show(User $user)
     {
+        $authUser = auth()->user();
+
         $posts = $user->posts()
             ->with(['media', 'reactions', 'comments'])
             ->latest()
@@ -18,9 +20,27 @@ class ProfileController extends Controller
         
         $followersCount = $user->followers()->count();
         $followingCount = $user->following()->count();
-        $isFollowing = auth()->user()->isFollowing($user->id);
+        $isFollowing = $authUser->isFollowing($user->id);
+        $isFriend = $authUser->isFriend($user->id);
+        $hasPendingFriendRequest = $user->friendRequests()
+            ->where('sender_id', $authUser->id)
+            ->where('status', 'pending')
+            ->exists();
+        $hasIncomingFriendRequest = $authUser->friendRequests()
+            ->where('sender_id', $user->id)
+            ->where('status', 'pending')
+            ->exists();
         
-        return view('profile.show', compact('user', 'posts', 'followersCount', 'followingCount', 'isFollowing'));
+        return view('profile.show', compact(
+            'user',
+            'posts',
+            'followersCount',
+            'followingCount',
+            'isFollowing',
+            'isFriend',
+            'hasPendingFriendRequest',
+            'hasIncomingFriendRequest'
+        ));
     }
 
     public function edit()

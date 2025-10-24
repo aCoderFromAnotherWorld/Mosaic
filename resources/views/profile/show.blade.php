@@ -44,6 +44,44 @@
                                         Edit Profile
                                     </a>
                                 @else
+                                    @if($isFriend)
+                                        <form method="POST" action="{{ route('users.remove-friend', $user) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex justify-center px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-red-600 bg-white hover:bg-red-50 transition-colors">
+                                                Remove Friend
+                                            </button>
+                                        </form>
+                                    @elseif($hasPendingFriendRequest)
+                                        <form method="POST" action="{{ route('users.cancel-friend-request', $user) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex justify-center px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                                Cancel Request
+                                            </button>
+                                        </form>
+                                    @elseif($hasIncomingFriendRequest)
+                                        <form method="POST" action="{{ route('users.accept-friend', $user) }}">
+                                            @csrf
+                                            <button type="submit" class="inline-flex justify-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-green-600 hover:bg-green-700 transition-colors">
+                                                Accept Request
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('users.decline-friend', $user) }}">
+                                            @csrf
+                                            <button type="submit" class="inline-flex justify-center px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                                Decline
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('users.friend-request', $user) }}">
+                                            @csrf
+                                            <button type="submit" class="inline-flex justify-center px-4 sm:px-6 py-2 sm:py-3 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition-colors">
+                                                Add Friend
+                                            </button>
+                                        </form>
+                                    @endif
+
                                     @if($isFollowing)
                                         <form method="POST" action="{{ route('users.unfollow', $user) }}">
                                             @csrf
