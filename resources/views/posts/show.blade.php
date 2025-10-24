@@ -22,8 +22,7 @@
                         @if($post->user_id === auth()->id())
                             <div class="relative" data-dropdown>
                                 <button type="button"
-                                        id="post-action-menu-trigger-{{ $post->id }}"
-                                        onclick="toggleDropdown(this)"
+                                        data-dropdown-trigger
                                         aria-haspopup="menu"
                                         aria-controls="post-action-menu-{{ $post->id }}"
                                         aria-expanded="false"
@@ -36,8 +35,7 @@
                                 <div id="post-action-menu-{{ $post->id }}"
                                      data-dropdown-content
                                      class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20"
-                                     role="menu"
-                                     aria-labelledby="post-action-menu-trigger-{{ $post->id }}">
+                                     role="menu">
                                     <a href="{{ route('posts.edit', $post) }}"
                                        data-dropdown-item
                                        role="menuitem"
@@ -263,21 +261,6 @@
     </div>
 
     <script>
-        function toggleDropdown(button) {
-            const menu = button.nextElementSibling;
-            if (menu) {
-                menu.classList.toggle('hidden');
-            }
-        }
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.relative')) {
-                document.querySelectorAll('[data-dropdown-content]').forEach(function(menu) {
-                    menu.classList.add('hidden');
-                });
-            }
-        });
 
         function toggleReaction(postId, action) {
             const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

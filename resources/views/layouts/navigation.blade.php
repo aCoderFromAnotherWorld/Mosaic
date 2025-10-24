@@ -1,4 +1,4 @@
-<nav x-data="{ open: false, notificationsOpen: false, profileOpen: false }" class="bg-white/95 backdrop-blur-md border-b border-gray-100/80 shadow-sm sticky top-0 z-50">
+<nav class="bg-white/95 backdrop-blur-md border-b border-gray-100/80 shadow-sm sticky top-0 z-50">
     @php
         $pendingFriendRequests = Auth::user()->friendRequests()->count();
     @endphp
@@ -85,9 +85,12 @@
 
                 <!-- Notifications -->
                 <div class="relative">
-                    <button @click="notificationsOpen = !notificationsOpen; profileOpen = false"
-                            class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50 hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-all duration-200 hover:scale-105 group"
-                            :class="{ 'bg-blue-50 text-blue-600': notificationsOpen }">
+                    <button type="button"
+                            onclick="toggleDropdown(this)"
+                            aria-haspopup="menu"
+                            aria-controls="notifications-dropdown"
+                            aria-expanded="false"
+                            class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50 hover:bg-blue-50 text-gray-600 hover:text-blue-600 transition-all duration-200 hover:scale-105 group">
                         <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5v-5zM4.868 12.683A17.925 17.925 0 0112 21c7.962 0 12-1.21 12-2.683m-12 2.683a17.925 17.925 0 01-7.132-8.317M12 21c4.411 0 8-4.03 8-9s-3.589-9-8-9-8 4.03-8 9a9.06 9.06 0 001.832 5.683L4 21l4.868-8.317z" />
                         </svg>
@@ -99,16 +102,8 @@
                     </button>
 
                     <!-- Notifications Dropdown -->
-                    <div x-show="notificationsOpen"
-                         x-transition:enter="transition ease-out duration-200"
-                         x-transition:enter-start="opacity-0 scale-95 translate-y-2"
-                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                         x-transition:leave="transition ease-in duration-150"
-                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                         x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-                         @click.away="notificationsOpen = false"
-                         class="absolute right-0 mt-2 w-96 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 z-50 overflow-hidden"
-                         style="display: none;">
+                    <div id="notifications-dropdown"
+                         class="hidden absolute right-0 mt-2 w-96 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 z-50 overflow-hidden">
                         <!-- Header -->
                         <div class="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
                             <div class="flex items-center justify-between">
@@ -189,36 +184,30 @@
 
                 <!-- Profile Dropdown -->
                 <div class="relative">
-                    <button @click="profileOpen = !profileOpen; notificationsOpen = false"
-                            class="flex items-center space-x-3 p-1 rounded-2xl bg-gray-50 hover:bg-blue-50 transition-all duration-200 hover:scale-105 group border-2 border-transparent hover:border-blue-200"
-                            :class="{ 'bg-blue-50 border-blue-200': profileOpen }">
+                    <button type="button"
+                            onclick="toggleDropdown(this)"
+                            aria-haspopup="menu"
+                            aria-controls="profile-dropdown"
+                            aria-expanded="false"
+                            class="flex items-center space-x-3 p-1 rounded-2xl bg-gray-50 hover:bg-blue-50 transition-all duration-200 hover:scale-105 group border-2 border-transparent hover:border-blue-200">
                         <div class="flex items-center space-x-3">
-                            <img class="h-8 w-8 rounded-full object-cover border-2 border-white shadow-sm group-hover:scale-110 transition-transform duration-200" 
-                                 src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=0D8ABC&color=fff&size=128' }}" 
+                            <img class="h-8 w-8 rounded-full object-cover border-2 border-white shadow-sm group-hover:scale-110 transition-transform duration-200"
+                                 src="{{ Auth::user()->profile_picture ? asset('storage/' . Auth::user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name) . '&background=0D8ABC&color=fff&size=128' }}"
                                  alt="{{ Auth::user()->name }}">
                             <div class="hidden lg:block text-left">
                                 <div class="text-sm font-semibold text-gray-900">{{ Auth::user()->name }}</div>
                                 <div class="text-xs text-gray-500">{{ '@' . (Auth::user()->username ?? Auth::user()->email) }}</div>
                             </div>
                         </div>
-                        <svg class="w-4 h-4 text-gray-500 transition-transform duration-200" 
-                             :class="{ 'rotate-180': profileOpen }" 
+                        <svg class="w-4 h-4 text-gray-500 transition-transform duration-200"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </button>
 
                     <!-- Profile Dropdown Content -->
-                    <div x-show="profileOpen"
-                         x-transition:enter="transition ease-out duration-200"
-                         x-transition:enter-start="opacity-0 scale-95 translate-y-2"
-                         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                         x-transition:leave="transition ease-in duration-150"
-                         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                         x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-                         @click.away="profileOpen = false"
-                         class="absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 z-50 overflow-hidden"
-                         style="display: none;">
+                    <div id="profile-dropdown"
+                         class="hidden absolute right-0 mt-2 w-64 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200/50 z-50 overflow-hidden">
                         <!-- User Info -->
                         <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100">
                             <div class="flex items-center space-x-3">
@@ -281,4 +270,22 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function toggleDropdown(button) {
+            const menu = button.nextElementSibling;
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.relative')) {
+                document.querySelectorAll('#notifications-dropdown, #profile-dropdown').forEach(function(menu) {
+                    menu.classList.add('hidden');
+                });
+            }
+        });
+    </script>
 </nav>
