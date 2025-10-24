@@ -218,7 +218,7 @@
         // Close dropdown when clicking outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.relative')) {
-                document.querySelectorAll('#post-action-menu-{{ $post->id }}').forEach(function(menu) {
+                document.querySelectorAll('[id^="post-action-menu-"]').forEach(function(menu) {
                     menu.classList.add('hidden');
                 });
             }
