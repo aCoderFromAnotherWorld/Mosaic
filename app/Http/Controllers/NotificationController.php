@@ -55,4 +55,19 @@ class NotificationController extends Controller
 
         return response()->json(['count' => $count]);
     }
+
+    public function redirect(Notification $notification)
+    {
+        if ($notification->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if (!$notification->is_read) {
+            $notification->markAsRead();
+        }
+
+        $target = $notification->data['url'] ?? route('notifications.index');
+
+        return redirect($target);
+    }
 }

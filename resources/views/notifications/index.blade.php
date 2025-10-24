@@ -65,8 +65,8 @@
                                             {{ $notification->created_at->diffForHumans() }}
                                         </p>
                                         @if($notification->data && isset($notification->data['url']))
-                                            <a href="{{ $notification->data['url'] }}" class="text-xs text-blue-600 hover:text-blue-500 mt-1 inline-block">
-                                                View details →
+                                            <a href="{{ route('notifications.redirect', $notification) }}" class="text-xs text-blue-600 hover:text-blue-500 mt-1 inline-block">
+                                                View details ->
                                             </a>
                                         @endif
                                     </div>
