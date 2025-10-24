@@ -140,7 +140,16 @@
                                                         </form>
                                                     @endif
 
-                                                    @if(!$user->is_following && !$user->is_friend)
+                                                    @if($user->is_following && !$user->is_friend)
+                                                        <form method="POST" action="{{ route('users.unfollow', $user) }}" class="inline">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit"
+                                                                    class="w-full px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg border border-green-700 whitespace-nowrap">
+                                                                Following
+                                                            </button>
+                                                        </form>
+                                                    @elseif(!$user->is_friend)
                                                         <!-- Follow Button -->
                                                         <form method="POST" action="{{ route('users.follow', $user) }}" class="inline">
                                                             @csrf

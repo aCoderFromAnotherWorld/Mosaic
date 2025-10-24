@@ -21,11 +21,19 @@ class SearchController extends Controller
                 ->withCount(['followers', 'following'])
                 ->limit(20)
                 ->get()
-                ->map(function ($user) {
-                    $user->is_friend = $user->isFriend(auth()->id());
-                    $user->is_following = $user->isFollowing(auth()->id());
-                    $user->has_pending_request = $user->friendRequests()->where('sender_id', auth()->id())->where('status', 'pending')->exists();
-                    $user->has_received_request = auth()->user()->friendRequests()->where('sender_id', $user->id)->where('status', 'pending')->exists();
+                ->map(function ($user) use ($request) {
+                    $authUser = $request->user();
+
+                    $user->is_friend = $authUser->isFriend($user->id);
+                    $user->is_following = $authUser->isFollowing($user->id);
+                    $user->has_pending_request = $user->friendRequests()
+                        ->where('sender_id', $authUser->id)
+                        ->where('status', 'pending')
+                        ->exists();
+                    $user->has_received_request = $authUser->friendRequests()
+                        ->where('sender_id', $user->id)
+                        ->where('status', 'pending')
+                        ->exists();
                     return $user;
                 });
         }
