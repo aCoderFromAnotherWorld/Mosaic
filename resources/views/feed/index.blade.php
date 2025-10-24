@@ -214,7 +214,6 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({ type: 'like' })
@@ -231,7 +230,6 @@
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': csrfToken,
-                        'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json'
                     }
                 })

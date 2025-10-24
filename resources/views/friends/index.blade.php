@@ -1,146 +1,217 @@
 <x-app-layout>
-    <div class="bg-slate-50 py-10 sm:py-14">
-        <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-            <header class="mb-10">
-                <span class="inline-flex items-center gap-2 rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-blue-700">
-                    {{ __('Connections') }}
-                </span>
-                <h1 class="mt-4 text-3xl font-semibold text-slate-900 sm:text-4xl">
-                    {{ __('Friends & Invitations') }}
-                </h1>
-                <p class="mt-2 max-w-2xl text-sm text-slate-500">
-                    {{ __('Review incoming requests and manage the people you collaborate with on Mosaic.') }}
-                </p>
+    <div class="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+        <!-- Enhanced Background Effects -->
+        <div class="pointer-events-none absolute inset-0 -z-10">
+            <div class="absolute left-10 top-16 h-72 w-72 rounded-full bg-gradient-to-r from-blue-500/30 to-purple-500/20 blur-3xl animate-pulse"></div>
+            <div class="absolute right-[-10rem] top-52 h-[28rem] w-[28rem] rounded-full bg-gradient-to-r from-pink-500/20 to-orange-500/15 blur-3xl animate-pulse delay-1000"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.08),_transparent_60%)]"></div>
+        </div>
+
+        <div class="relative z-10 mx-auto max-w-7xl px-4 pb-20 pt-20 sm:px-6 lg:px-8">
+            <!-- Enhanced Header -->
+            <header class="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                <div class="space-y-4">
+                    <div class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white/80 shadow-lg">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z"></path>
+                        </svg>
+                        {{ __('Connections') }}
+                    </div>
+                    <h1 class="text-4xl font-bold leading-tight text-white sm:text-5xl lg:text-6xl">
+                        {{ __('Your Network') }}
+                    </h1>
+                    <p class="max-w-2xl text-lg text-white/70 leading-relaxed">
+                        {{ __('Build meaningful connections and manage your social circle with ease.') }}
+                    </p>
+                </div>
+                <div class="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-6 py-3 text-sm font-semibold uppercase tracking-wider text-white/80 shadow-lg">
+                    <div class="flex h-3 w-3 rounded-full bg-green-400 animate-pulse"></div>
+                    {{ trans_choice(':count pending request|:count pending requests', $pendingRequests->count(), ['count' => $pendingRequests->count()]) }}
+                </div>
             </header>
 
             <div class="space-y-10">
-                <section class="rounded-2xl border border-blue-100 bg-white shadow-sm">
-                    <div class="flex flex-col gap-3 border-b border-blue-100/70 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                <!-- Friend Requests Section -->
+                <section class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl hover:shadow-blue-500/10 transition-shadow duration-300">
+                    <div class="mb-8 flex items-center justify-between gap-4">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-wide text-blue-500">{{ __('Friend Requests') }}</p>
-                            <h2 class="text-lg font-semibold text-slate-900">{{ __('Pending invitations') }}</h2>
+                            <p class="text-sm uppercase tracking-wider text-white/50 font-medium">{{ __('Friend Requests') }}</p>
+                            <h2 class="text-3xl font-bold text-white mt-1">{{ __('Pending Invitations') }}</h2>
                         </div>
-                        <span class="inline-flex min-w-[2.25rem] items-center justify-center rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-600">
+                        <div class="rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white/80">
                             {{ $pendingRequests->count() }}
-                        </span>
+                        </div>
                     </div>
 
-                    <div class="p-6">
-                        @if($pendingRequests->isNotEmpty())
-                            <div class="space-y-4">
-                                @foreach($pendingRequests as $user)
-                                    <article class="flex flex-col gap-4 rounded-xl border border-blue-100/60 bg-blue-50/40 p-4 sm:flex-row sm:items-center sm:justify-between">
-                                        <div class="flex items-start gap-4">
-                                            <div class="h-12 w-12 overflow-hidden rounded-full border border-blue-200 bg-white shadow-sm">
-                                                @if($user->profile_picture)
-                                                    <img src="{{ asset('storage/' . $user->profile_picture) }}" alt="{{ $user->name }}" class="h-full w-full object-cover">
+                    @if($pendingRequests->count() > 0)
+                        <div class="grid gap-6 lg:grid-cols-1">
+                            @foreach($pendingRequests as $requestUser)
+                                <article class="group flex flex-col gap-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 transition-all duration-300 hover:border-blue-400/40 hover:bg-white/10 hover:shadow-lg hover:shadow-blue-500/10 sm:flex-row sm:items-center sm:justify-between">
+                                    <div class="flex items-start gap-5">
+                                        <div class="relative">
+                                            <div class="h-16 w-16 overflow-hidden rounded-full border-2 border-white/20 bg-gradient-to-br from-white/10 to-white/5 shadow-lg">
+                                                @if($requestUser->profile_picture)
+                                                    <img src="{{ asset('storage/' . $requestUser->profile_picture) }}" alt="{{ $requestUser->name }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
                                                 @else
-                                                    <div class="flex h-full w-full items-center justify-center text-sm font-semibold text-blue-500">
-                                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                                    <div class="flex h-full w-full items-center justify-center text-lg font-bold text-white/70 bg-gradient-to-br from-blue-500/20 to-purple-500/20">
+                                                        {{ strtoupper(substr($requestUser->name, 0, 1)) }}
                                                     </div>
                                                 @endif
                                             </div>
-                                            <div>
-                                                <a href="{{ route('profile.show', $user->username) }}" class="text-base font-semibold text-slate-900 hover:text-blue-600">
-                                                    {{ $user->name }}
-                                                </a>
-                                                <p class="text-sm text-slate-500">{{ '@' . $user->username }}</p>
-                                                @if($user->bio)
-                                                    <p class="mt-2 text-sm text-slate-600">{{ \Illuminate\Support\Str::limit($user->bio, 90) }}</p>
-                                                @endif
-                                                <div class="mt-3 flex flex-wrap gap-3 text-xs text-slate-500">
-                                                    <span>{{ trans_choice(':count follower|:count followers', $user->followers_count, ['count' => $user->followers_count]) }}</span>
-                                                    <span>{{ trans_choice(':count following', $user->following_count, ['count' => $user->following_count]) }}</span>
-                                                </div>
+                                            <div class="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-blue-500 border-2 border-slate-800 flex items-center justify-center">
+                                                <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                                                </svg>
                                             </div>
                                         </div>
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <form method="POST" action="{{ route('users.accept-friend', $user) }}">
-                                                @csrf
-                                                <button type="submit" class="inline-flex items-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                                    {{ __('Accept') }}
-                                                </button>
-                                            </form>
-                                            <form method="POST" action="{{ route('users.decline-friend', $user) }}">
-                                                @csrf
-                                                <button type="submit" class="inline-flex items-center rounded-md border border-blue-200 px-4 py-2 text-sm font-semibold text-blue-600 transition hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-offset-2">
-                                                    {{ __('Decline') }}
-                                                </button>
-                                            </form>
+                                        <div class="flex-1 min-w-0">
+                                            <a href="{{ route('profile.show', $requestUser->username) }}" class="text-xl font-bold text-white transition-colors hover:text-blue-300 truncate">
+                                                {{ $requestUser->name }}
+                                            </a>
+                                            <p class="text-sm text-white/60 mt-1">{{ '@' . $requestUser->username }}</p>
+                                            @if($requestUser->bio)
+                                                <p class="mt-3 text-sm text-white/70 leading-relaxed">{{ \Illuminate\Support\Str::limit($requestUser->bio, 120) }}</p>
+                                            @endif
+                                            <div class="mt-4 flex flex-wrap gap-3">
+                                                <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-3 py-1 text-xs font-medium text-white/80">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                    </svg>
+                                                    {{ trans_choice(':count follower|:count followers', $requestUser->followers_count, ['count' => $requestUser->followers_count]) }}
+                                                </span>
+                                                <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-3 py-1 text-xs font-medium text-white/80">
+                                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                                    </svg>
+                                                    {{ trans_choice(':count following', $requestUser->following_count, ['count' => $requestUser->following_count]) }}
+                                                </span>
+                                            </div>
                                         </div>
-                                    </article>
-                                @endforeach
-                            </div>
-                        @else
-                            <div class="flex flex-col items-center rounded-xl border border-dashed border-blue-200 bg-blue-50/40 px-6 py-10 text-center text-sm text-blue-700">
-                                <svg class="mb-3 h-10 w-10 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M18 8a3 3 0 11-6 0 3 3 0 016 0zm-9 8a3 3 0 100-6 3 3 0 000 6zm9 0a3 3 0 11-6 0 3 3 0 016 0zM15 14l1.553 1.553a2.2 2.2 0 01.647 1.557v.64A1.25 1.25 0 0116 19.75h-2.5" />
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6" d="M9 14l-1.553 1.553a2.2 2.2 0 00-.647 1.557v.64c0 .69.56 1.25 1.25 1.25H10" />
+                                    </div>
+                                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                        <form method="POST" action="{{ route('users.accept-friend', $requestUser) }}" class="flex-1">
+                                            @csrf
+                                            <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-green-500 to-emerald-500 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:from-green-600 hover:to-emerald-600 hover:shadow-lg hover:shadow-green-500/25 transform hover:scale-105">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                {{ __('Accept') }}
+                                            </button>
+                                        </form>
+                                        <form method="POST" action="{{ route('users.decline-friend', $requestUser) }}" class="flex-1">
+                                            @csrf
+                                            <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm px-6 py-3 text-sm font-semibold text-white/80 transition-all duration-300 hover:bg-white/20 hover:shadow-lg hover:shadow-white/10 transform hover:scale-105">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                {{ __('Decline') }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="rounded-2xl border-2 border-dashed border-white/20 bg-white/5 backdrop-blur-sm p-12 text-center">
+                            <div class="mx-auto w-24 h-24 rounded-full bg-white/10 flex items-center justify-center mb-6">
+                                <svg class="w-12 h-12 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
                                 </svg>
-                                <p>{{ __('You have no pending friend requests right now.') }}</p>
                             </div>
-                        @endif
-                    </div>
+                            <h3 class="text-xl font-semibold text-white/80 mb-2">{{ __('All Caught Up!') }}</h3>
+                            <p class="text-white/60">{{ __('No pending friend requests at the moment. New requests will appear here.') }}</p>
+                        </div>
+                    @endif
                 </section>
 
-                <section class="rounded-2xl border border-slate-200 bg-white shadow-sm">
-                    <div class="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
+                <!-- Friends Section -->
+                <section class="rounded-3xl border border-white/10 bg-white/5 backdrop-blur-xl p-8 shadow-2xl hover:shadow-purple-500/10 transition-shadow duration-300">
+                    <div class="mb-8 flex items-center justify-between gap-4">
                         <div>
-                            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ __('Your Friends') }}</p>
-                            <h2 class="text-lg font-semibold text-slate-900">{{ __('People you are connected with') }}</h2>
+                            <p class="text-sm uppercase tracking-wider text-white/50 font-medium">{{ __('Your Friends') }}</p>
+                            <h2 class="text-3xl font-bold text-white mt-1">{{ __('Connected People') }}</h2>
                         </div>
-                        <span class="inline-flex min-w-[2.25rem] items-center justify-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                        <div class="rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-white/80">
                             {{ $friends->count() }}
-                        </span>
+                        </div>
                     </div>
 
-                    <div class="p-6">
-                        @if($friends->isNotEmpty())
-                            <div class="grid gap-4 sm:grid-cols-2">
-                                @foreach($friends as $friend)
-                                    <article class="flex h-full flex-col rounded-lg border border-slate-200 bg-slate-50 p-5 shadow-sm">
-                                        <div class="flex items-start gap-4">
-                                            <div class="h-12 w-12 overflow-hidden rounded-full border border-slate-200 bg-white">
+                    @if($friends->count() > 0)
+                        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            @foreach($friends as $friend)
+                                <article class="group flex flex-col justify-between gap-6 rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 transition-all duration-300 hover:border-purple-400/40 hover:bg-white/10 hover:shadow-lg hover:shadow-purple-500/10 transform hover:scale-105">
+                                    <div class="flex items-start gap-4">
+                                        <div class="relative">
+                                            <div class="h-14 w-14 overflow-hidden rounded-full border-2 border-white/20 bg-gradient-to-br from-white/10 to-white/5 shadow-lg">
                                                 @if($friend->profile_picture)
-                                                    <img src="{{ asset('storage/' . $friend->profile_picture) }}" alt="{{ $friend->name }}" class="h-full w-full object-cover">
+                                                    <img src="{{ asset('storage/' . $friend->profile_picture) }}" alt="{{ $friend->name }}" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
                                                 @else
-                                                    <div class="flex h-full w-full items-center justify-center text-sm font-semibold text-slate-500">
+                                                    <div class="flex h-full w-full items-center justify-center text-base font-bold text-white/70 bg-gradient-to-br from-purple-500/20 to-pink-500/20">
                                                         {{ strtoupper(substr($friend->name, 0, 1)) }}
                                                     </div>
                                                 @endif
                                             </div>
-                                            <div class="space-y-1">
-                                                <a href="{{ route('profile.show', $friend->username) }}" class="text-base font-semibold text-slate-900 hover:text-blue-600">
-                                                    {{ $friend->name }}
-                                                </a>
-                                                <p class="text-sm text-slate-500">{{ '@' . $friend->username }}</p>
-                                                @if($friend->bio)
-                                                    <p class="text-sm text-slate-600">{{ \Illuminate\Support\Str::limit($friend->bio, 90) }}</p>
-                                                @endif
+                                            <div class="absolute -bottom-1 -right-1 h-5 w-5 rounded-full bg-green-500 border-2 border-slate-800 flex items-center justify-center">
+                                                <div class="w-2 h-2 rounded-full bg-white"></div>
                                             </div>
                                         </div>
-                                        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
-                                            <div class="flex gap-3">
-                                                <span>{{ trans_choice(':count follower|:count followers', $friend->followers_count, ['count' => $friend->followers_count]) }}</span>
-                                                <span>{{ trans_choice(':count following', $friend->following_count, ['count' => $friend->following_count]) }}</span>
-                                            </div>
-                                            <form method="POST" action="{{ route('users.remove-friend', $friend) }}">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="inline-flex items-center rounded-md border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-200">
-                                                    {{ __('Remove Friend') }}
-                                                </button>
-                                            </form>
+                                        <div class="flex-1 min-w-0">
+                                            <a href="{{ route('profile.show', $friend->username) }}" class="text-lg font-bold text-white transition-colors hover:text-purple-300 truncate">
+                                                {{ $friend->name }}
+                                            </a>
+                                            <p class="text-sm text-white/60 mt-1">{{ '@' . $friend->username }}</p>
+                                            @if($friend->bio)
+                                                <p class="mt-2 text-sm text-white/70 leading-relaxed">{{ \Illuminate\Support\Str::limit($friend->bio, 100) }}</p>
+                                            @endif
                                         </div>
-                                    </article>
-                                @endforeach
+                                    </div>
+                                    <div class="space-y-4">
+                                        <div class="flex flex-wrap gap-2 text-xs">
+                                            <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-3 py-1 font-medium text-white/80">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                                </svg>
+                                                {{ trans_choice(':count follower|:count followers', $friend->followers_count, ['count' => $friend->followers_count]) }}
+                                            </span>
+                                            <span class="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 backdrop-blur-sm px-3 py-1 font-medium text-white/80">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                                                </svg>
+                                                {{ trans_choice(':count following', $friend->following_count, ['count' => $friend->following_count]) }}
+                                            </span>
+                                        </div>
+                                        <form method="POST" action="{{ route('users.remove-friend', $friend) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-red-400/40 bg-red-500/10 backdrop-blur-sm px-4 py-2 text-sm font-semibold text-red-200 transition-all duration-300 hover:bg-red-500/20 hover:shadow-lg hover:shadow-red-500/25 transform hover:scale-105">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                                </svg>
+                                                {{ __('Remove Friend') }}
+                                            </button>
+                                        </form>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+                    @else
+                        <div class="rounded-2xl border-2 border-dashed border-white/20 bg-white/5 backdrop-blur-sm p-12 text-center">
+                            <div class="mx-auto w-24 h-24 rounded-full bg-white/10 flex items-center justify-center mb-6">
+                                <svg class="w-12 h-12 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                                </svg>
                             </div>
-                        @else
-                            <div class="rounded-xl border border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center text-sm text-slate-600">
-                                {{ __('You haven’t added any friends yet. Search for people and send a request to connect.') }}
-                            </div>
-                        @endif
-                    </div>
+                            <h3 class="text-xl font-semibold text-white/80 mb-2">{{ __('No Friends Yet') }}</h3>
+                            <p class="text-white/60 mb-6">{{ __('Start building your network by sending friend requests or accepting pending invitations.') }}</p>
+                            <a href="{{ route('search.index') }}" class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500 px-6 py-3 text-sm font-semibold text-white transition-all duration-300 hover:from-blue-600 hover:to-purple-600 hover:shadow-lg hover:shadow-blue-500/25 transform hover:scale-105">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path>
+                                </svg>
+                                {{ __('Find People') }}
+                            </a>
+                        </div>
+                    @endif
                 </section>
             </div>
         </div>
