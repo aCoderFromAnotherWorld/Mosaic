@@ -27,7 +27,17 @@ class FeedController extends Controller
             ->whereIn('user_id', $followingIds)
             ->latest()
             ->paginate(10);
-        
-        return view('feed.index', compact('posts'));
+
+        $shareFriends = $user->friends()
+            ->select('users.id', 'users.name', 'users.username', 'users.profile_picture')
+            ->orderBy('users.name')
+            ->get();
+
+        $shareFollowers = $user->followers()
+            ->select('users.id', 'users.name', 'users.username', 'users.profile_picture')
+            ->orderBy('users.name')
+            ->get();
+
+        return view('feed.index', compact('posts', 'shareFriends', 'shareFollowers'));
     }
 }

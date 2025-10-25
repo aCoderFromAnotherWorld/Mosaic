@@ -31,6 +31,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     
     // Posts
     Route::resource('posts', PostController::class);
+    Route::post('/posts/{post}/share', [PostController::class, 'share'])->name('posts.share');
     
     // Reactions
     Route::post('/posts/{post}/react', [ReactionController::class, 'store'])->name('posts.react');

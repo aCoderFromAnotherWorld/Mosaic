@@ -88,7 +88,29 @@
                                                         </a>
                                                     @endif
                                                 @endif
-                                                @if($message->message)
+                                                @php
+                                                    $sharedPostId = null;
+                                                    $sharedPostUrl = null;
+                                                    if ($message->message && str_starts_with($message->message, 'shared_post:')) {
+                                                        $sharedPostId = (int) substr($message->message, strlen('shared_post:'));
+                                                        if ($sharedPostId > 0) {
+                                                            $sharedPostUrl = route('posts.show', $sharedPostId);
+                                                        }
+                                                    }
+                                                @endphp
+                                                @if($sharedPostId && $sharedPostUrl)
+                                                    <div class="space-y-2">
+                                                        <p class="text-sm font-semibold">Shared a post with you</p>
+                                                        <a href="{{ $sharedPostUrl }}"
+                                                           target="_blank"
+                                                           class="inline-flex items-center justify-center px-3 py-2 text-sm font-medium rounded-lg bg-white/15 hover:bg-white/25 transition">
+                                                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7H7a2 2 0 00-2 2v6a2 2 0 002 2h6m4-4h-9m9 0l-3 3m3-3l-3-3" />
+                                                            </svg>
+                                                            View Post
+                                                        </a>
+                                                    </div>
+                                                @elseif($message->message)
                                                     <p class="break-words">{{ $message->message }}</p>
                                                     @if($message->is_edited)
                                                         <span class="text-xs opacity-70">(edited)</span>

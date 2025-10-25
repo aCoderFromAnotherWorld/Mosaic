@@ -132,7 +132,10 @@
                                 </button>
 
                                 <!-- Share Button -->
-                                <button class="flex items-center space-x-2 text-gray-600 hover:text-green-500 transition-colors group">
+                                <button type="button"
+                                        class="flex items-center space-x-2 text-gray-600 hover:text-green-500 transition-colors group"
+                                        data-share-trigger
+                                        data-share-url="{{ route('posts.share', $post) }}">
                                     <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path>
                                     </svg>
@@ -474,6 +477,11 @@
         </div>
     </div>
 
+    @include('posts.partials.share-modal', [
+        'shareFriends' => $shareFriends,
+        'shareFollowers' => $shareFollowers,
+    ])
+
     <!-- Image Modal -->
     <div id="imageModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onclick="closeImageModal()">
         <img id="modalImage" src="" alt="Full size image" class="max-h-full max-w-full rounded-lg">
@@ -716,4 +724,6 @@
             }
         }
     </script>
+
+    @include('posts.partials.share-script')
 </x-app-layout>

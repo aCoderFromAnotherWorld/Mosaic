@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\PostMedia;
+use App\Models\Conversation;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,8 +17,18 @@ class PostController extends Controller
             ->with(['media', 'reactions', 'comments'])
             ->latest()
             ->paginate(10);
-        
-        return view('posts.index', compact('posts'));
+
+        $shareFriends = auth()->user()->friends()
+            ->select('users.id', 'users.name', 'users.username', 'users.profile_picture')
+            ->orderBy('users.name')
+            ->get();
+
+        $shareFollowers = auth()->user()->followers()
+            ->select('users.id', 'users.name', 'users.username', 'users.profile_picture')
+            ->orderBy('users.name')
+            ->get();
+
+        return view('posts.index', compact('posts', 'shareFriends', 'shareFollowers'));
     }
 
     public function create()
@@ -81,8 +93,23 @@ class PostController extends Controller
             'comments.replies.user',
             'comments.replies.likes.user',
         ]);
-        
-        return view('posts.show', compact('post'));
+
+        $shareFriends = collect();
+        $shareFollowers = collect();
+
+        if (auth()->check()) {
+            $shareFriends = auth()->user()->friends()
+                ->select('users.id', 'users.name', 'users.username', 'users.profile_picture')
+                ->orderBy('users.name')
+                ->get();
+
+            $shareFollowers = auth()->user()->followers()
+                ->select('users.id', 'users.name', 'users.username', 'users.profile_picture')
+                ->orderBy('users.name')
+                ->get();
+        }
+
+        return view('posts.show', compact('post', 'shareFriends', 'shareFollowers'));
     }
 
     public function edit(Post $post)
@@ -119,5 +146,60 @@ class PostController extends Controller
         $post->delete();
 
         return redirect()->route('feed')->with('success', 'Post deleted successfully!');
+    }
+
+    public function share(Request $request, Post $post)
+    {
+        $user = $request->user();
+
+        $validated = $request->validate([
+            'recipients' => ['required', 'array', 'min:1'],
+            'recipients.*' => ['integer', 'exists:users,id'],
+        ]);
+
+        $shareableIds = $user->friends()->pluck('users.id')
+            ->merge($user->followers()->pluck('users.id'))
+            ->unique()
+            ->reject(fn ($id) => $id === $user->id)
+            ->values();
+
+        $recipientIds = collect($validated['recipients'])
+            ->unique()
+            ->filter(fn ($id) => $shareableIds->contains($id))
+            ->values();
+
+        if ($recipientIds->isEmpty()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please select at least one valid recipient.',
+            ], 422);
+        }
+
+        $recipients = User::whereIn('id', $recipientIds)->get();
+
+        foreach ($recipients as $recipient) {
+            $conversation = $user->conversations()
+                ->whereHas('users', function ($query) use ($recipient) {
+                    $query->where('users.id', $recipient->id);
+                })
+                ->first();
+
+            if (!$conversation) {
+                $conversation = Conversation::create();
+                $conversation->users()->attach([$user->id, $recipient->id]);
+            }
+
+            $conversation->messages()->create([
+                'user_id' => $user->id,
+                'message' => 'shared_post:' . $post->id,
+            ]);
+
+            $conversation->touch();
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Post shared successfully.',
+        ]);
     }
 }
