@@ -102,7 +102,7 @@
                         <div class="flex items-center justify-around">
                             <!-- Like / Unlike Button -->
                             @if($userReaction)
-                                <form method="POST" action="{{ route('posts.unreact', $post) }}" class="flex items-center">
+                                <form method="POST" action="{{ route('posts.unreact', $post) }}" class="reaction-form flex items-center" data-post-id="{{ $post->id }}">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="flex items-center space-x-1 sm:space-x-2 group">
@@ -113,7 +113,7 @@
                                     </button>
                                 </form>
                             @else
-                                <form method="POST" action="{{ route('posts.react', $post) }}" class="flex items-center">
+                                <form method="POST" action="{{ route('posts.react', $post) }}" class="reaction-form flex items-center" data-post-id="{{ $post->id }}">
                                     @csrf
                                     <input type="hidden" name="type" value="like">
                                     <button type="submit" class="flex items-center space-x-1 sm:space-x-2 group">
@@ -145,7 +145,7 @@
 
                 <!-- Add Comment Form -->
                 <div class="border-t border-gray-200 px-4 sm:px-6 py-3 sm:py-4">
-                    <form method="POST" action="{{ route('comments.store', $post) }}">
+                    <form method="POST" action="{{ route('comments.store', $post) }}" class="comment-form" data-post-id="{{ $post->id }}">
                         @csrf
                         <div class="flex space-x-3">
                             <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}" 
@@ -191,38 +191,38 @@
                                             </a>
                                             <p class="text-sm sm:text-base text-gray-700 mt-1">{{ $comment->content }}</p>
                                         </div>
-                                        <div class="flex items-center flex-wrap gap-4 mt-2 text-xs sm:text-sm text-gray-500">
-                                            <span>{{ $comment->created_at->diffForHumans() }}</span>
-                                            <div class="flex items-center space-x-2">
-                                                @if($commentLiked)
-                                                    <form method="POST" action="{{ route('comments.unlike', $comment) }}" class="inline">
+                                            <div class="flex items-center flex-wrap gap-4 mt-2 text-xs sm:text-sm text-gray-500">
+                                                <span>{{ $comment->created_at->diffForHumans() }}</span>
+                                                <div class="flex items-center space-x-2">
+                                                    @if($commentLiked)
+                                                        <form method="POST" action="{{ route('comments.unlike', $comment) }}" class="comment-like-form inline" data-comment-id="{{ $comment->id }}">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="hover:text-red-600 transition-colors font-medium">Unlike</button>
+                                                        </form>
+                                                    @else
+                                                        <form method="POST" action="{{ route('comments.like', $comment) }}" class="comment-like-form inline" data-comment-id="{{ $comment->id }}">
+                                                            @csrf
+                                                            <button type="submit" class="hover:text-gray-700 transition-colors font-medium">Like</button>
+                                                        </form>
+                                                    @endif
+                                                    @if($commentLikesCount > 0)
+                                                        <button type="button" onclick="openCommentLikesModal({{ $comment->id }})" class="text-gray-400 hover:text-indigo-600 transition-colors font-medium">
+                                                            {{ $commentLikesCount }} {{ Str::plural('Like', $commentLikesCount) }}
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                                <button type="button" onclick="toggleReplyForm({{ $comment->id }})" class="hover:text-indigo-600 transition-colors font-medium">Reply</button>
+                                                @can('delete', $comment)
+                                                    <form method="POST" action="{{ route('comments.destroy', $comment) }}" class="inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="hover:text-red-600 transition-colors font-medium">Unlike</button>
+                                                        <button type="submit" onclick="return confirm('Delete this comment?')" class="hover:text-red-600 transition-colors font-medium">
+                                                            Delete
+                                                        </button>
                                                     </form>
-                                                @else
-                                                    <form method="POST" action="{{ route('comments.like', $comment) }}" class="inline">
-                                                        @csrf
-                                                        <button type="submit" class="hover:text-gray-700 transition-colors font-medium">Like</button>
-                                                    </form>
-                                                @endif
-                                                @if($commentLikesCount > 0)
-                                                    <button type="button" onclick="openCommentLikesModal({{ $comment->id }})" class="text-gray-400 hover:text-indigo-600 transition-colors font-medium">
-                                                        {{ $commentLikesCount }} {{ Str::plural('Like', $commentLikesCount) }}
-                                                    </button>
-                                                @endif
+                                                @endcan
                                             </div>
-                                        <button type="button" onclick="toggleReplyForm({{ $comment->id }})" class="hover:text-indigo-600 transition-colors font-medium">Reply</button>
-                                            @can('delete', $comment)
-                                                <form method="POST" action="{{ route('comments.destroy', $comment) }}" class="inline">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" onclick="return confirm('Delete this comment?')" class="hover:text-red-600 transition-colors font-medium">
-                                                        Delete
-                                                    </button>
-                                                </form>
-                                            @endcan
-                                        </div>
 
                                         @if($commentLikesCount > 0)
                                             <div id="comment-likes-modal-{{ $comment->id }}" class="comment-likes-modal hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeCommentLikesModal({{ $comment->id }})">
@@ -293,13 +293,13 @@
                                                                 <span>{{ $reply->created_at->diffForHumans() }}</span>
                                                                 <div class="flex items-center space-x-2">
                                                                     @if($replyLiked)
-                                                                        <form method="POST" action="{{ route('comments.unlike', $reply) }}" class="inline">
+                                                                        <form method="POST" action="{{ route('comments.unlike', $reply) }}" class="comment-like-form inline" data-comment-id="{{ $reply->id }}">
                                                                             @csrf
                                                                             @method('DELETE')
                                                                             <button type="submit" class="hover:text-red-600 transition-colors font-medium">Unlike</button>
                                                                         </form>
                                                                     @else
-                                                                        <form method="POST" action="{{ route('comments.like', $reply) }}" class="inline">
+                                                                        <form method="POST" action="{{ route('comments.like', $reply) }}" class="comment-like-form inline" data-comment-id="{{ $reply->id }}">
                                                                             @csrf
                                                                             <button type="submit" class="hover:text-gray-700 transition-colors font-medium">Like</button>
                                                                         </form>
@@ -370,6 +370,110 @@
     </div>
 
     <script>
+        // Handle reaction forms (like/unlike posts)
+        document.addEventListener('submit', function(e) {
+            if (e.target.classList.contains('reaction-form')) {
+                e.preventDefault();
+                const form = e.target;
+                const postId = form.dataset.postId;
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: form.method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update reaction count
+                        const countElement = document.getElementById('reaction-count-' + postId);
+                        if (countElement) {
+                            const currentCount = parseInt(countElement.textContent.split(' ')[0]);
+                            const newCount = form.method === 'POST' ? currentCount + 1 : currentCount - 1;
+                            countElement.textContent = newCount + ' ' + (newCount === 1 ? 'reaction' : 'reactions');
+                        }
+
+                        // Reload the page to update the button state
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Fallback to normal form submission
+                    form.submit();
+                });
+            }
+        });
+
+        // Handle comment forms
+        document.addEventListener('submit', function(e) {
+            if (e.target.classList.contains('comment-form')) {
+                e.preventDefault();
+                const form = e.target;
+                const postId = form.dataset.postId;
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: form.method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.comment) {
+                        // Clear the textarea
+                        const textarea = form.querySelector('textarea');
+                        if (textarea) textarea.value = '';
+
+                        // Reload the page to show the new comment
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Fallback to normal form submission
+                    form.submit();
+                });
+            }
+        });
+
+        // Handle comment like/unlike forms
+        document.addEventListener('submit', function(e) {
+            if (e.target.classList.contains('comment-like-form')) {
+                e.preventDefault();
+                const form = e.target;
+                const commentId = form.dataset.commentId;
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: form.method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reload the page to update the like state
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Fallback to normal form submission
+                    form.submit();
+                });
+            }
+        });
 
         function toggleReplyForm(commentId) {
             const form = document.getElementById('reply-form-' + commentId);

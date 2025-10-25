@@ -94,7 +94,7 @@
                             <div class="flex items-center justify-around border-t border-gray-100 pt-3">
                                 <!-- Like Button -->
                                 @if($userReaction)
-                                    <form method="POST" action="{{ route('posts.unreact', $post) }}" class="flex items-center">
+                                    <form method="POST" action="{{ route('posts.unreact', $post) }}" class="reaction-form flex items-center" data-post-id="{{ $post->id }}">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="flex items-center space-x-2 text-red-500 hover:text-red-600 transition-colors group">
@@ -105,7 +105,7 @@
                                         </button>
                                     </form>
                                 @else
-                                    <form method="POST" action="{{ route('posts.react', $post) }}" class="flex items-center">
+                                    <form method="POST" action="{{ route('posts.react', $post) }}" class="reaction-form flex items-center" data-post-id="{{ $post->id }}">
                                         @csrf
                                         <input type="hidden" name="type" value="like">
                                         <button type="submit" class="flex items-center space-x-2 text-gray-600 hover:text-red-500 transition-colors group">
@@ -137,7 +137,7 @@
 
                         <!-- Comment Form -->
                         <div id="comment-form-{{ $post->id }}" class="hidden border-t border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
-                            <form method="POST" action="{{ route('comments.store', $post) }}">
+                            <form method="POST" action="{{ route('comments.store', $post) }}" class="comment-form" data-post-id="{{ $post->id }}">
                                 @csrf
                                 <div class="flex space-x-3">
                                     <img src="{{ auth()->user()->profile_picture ? asset('storage/' . auth()->user()->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}" 
@@ -181,13 +181,13 @@
                                                 <span>{{ $comment->created_at->diffForHumans() }}</span>
                                                 <div class="flex items-center space-x-2">
                                                     @if($commentLiked)
-                                                        <form method="POST" action="{{ route('comments.unlike', $comment) }}" class="inline">
+                                                        <form method="POST" action="{{ route('comments.unlike', $comment) }}" class="comment-like-form inline" data-comment-id="{{ $comment->id }}">
                                                             @csrf
                                                             @method('DELETE')
                                                             <button type="submit" class="hover:text-red-600 transition-colors font-medium">Unlike</button>
                                                         </form>
                                                     @else
-                                                        <form method="POST" action="{{ route('comments.like', $comment) }}" class="inline">
+                                                        <form method="POST" action="{{ route('comments.like', $comment) }}" class="comment-like-form inline" data-comment-id="{{ $comment->id }}">
                                                             @csrf
                                                             <button type="submit" class="hover:text-gray-700 transition-colors font-medium">Like</button>
                                                         </form>
@@ -199,7 +199,7 @@
                                                 <button type="button" class="hover:text-gray-700 transition-colors" onclick="toggleFeedReplyForm('{{ $replyFormId }}')">Reply</button>
                                             </div>
                                             <div id="{{ $replyFormId }}" class="hidden mt-2">
-                                                <form method="POST" action="{{ route('comments.store', $post) }}">
+                                                <form method="POST" action="{{ route('comments.store', $post) }}" class="comment-form" data-post-id="{{ $post->id }}">
                                                     @csrf
                                                     <input type="hidden" name="parent_id" value="{{ $comment->id }}">
                                                     <div class="flex space-x-2">
@@ -277,6 +277,111 @@
     </div>
 
     <script>
+        // Handle reaction forms (like/unlike posts)
+        document.addEventListener('submit', function(e) {
+            if (e.target.classList.contains('reaction-form')) {
+                e.preventDefault();
+                const form = e.target;
+                const postId = form.dataset.postId;
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: form.method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update reaction count
+                        const countElement = document.getElementById('reaction-count-' + postId);
+                        if (countElement) {
+                            const currentCount = parseInt(countElement.textContent.split(' ')[0]);
+                            const newCount = form.method === 'POST' ? currentCount + 1 : currentCount - 1;
+                            countElement.textContent = newCount + ' ' + (newCount === 1 ? 'reaction' : 'reactions');
+                        }
+
+                        // Reload the page to update the button state
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Fallback to normal form submission
+                    form.submit();
+                });
+            }
+        });
+
+        // Handle comment forms
+        document.addEventListener('submit', function(e) {
+            if (e.target.classList.contains('comment-form')) {
+                e.preventDefault();
+                const form = e.target;
+                const postId = form.dataset.postId;
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: form.method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success && data.comment) {
+                        // Clear the textarea
+                        const textarea = form.querySelector('textarea');
+                        if (textarea) textarea.value = '';
+
+                        // Reload the page to show the new comment
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Fallback to normal form submission
+                    form.submit();
+                });
+            }
+        });
+
+        // Handle comment like/unlike forms
+        document.addEventListener('submit', function(e) {
+            if (e.target.classList.contains('comment-like-form')) {
+                e.preventDefault();
+                const form = e.target;
+                const commentId = form.dataset.commentId;
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: form.method,
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Reload the page to update the like state
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Fallback to normal form submission
+                    form.submit();
+                });
+            }
+        });
+
         function toggleFeedReplyForm(formId) {
             const form = document.getElementById(formId);
             if (!form) {
