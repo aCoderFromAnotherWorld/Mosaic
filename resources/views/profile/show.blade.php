@@ -143,6 +143,63 @@
                 </div>
             </div>
 
+            <!-- Connections -->
+            @if($isOwnProfile)
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6 mb-6">
+                    <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Connections</h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Followers</h3>
+                                <span class="text-sm text-gray-500">{{ $followersCount }}</span>
+                            </div>
+                            <div class="space-y-3">
+                                @forelse($followers as $follower)
+                                    @php
+                                        $followerAvatar = $follower->profile_picture
+                                            ? asset('storage/' . $follower->profile_picture)
+                                            : 'https://ui-avatars.com/api/?name=' . urlencode($follower->name) . '&size=200';
+                                    @endphp
+                                    <a href="{{ route('profile.show', $follower->username) }}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition">
+                                        <img src="{{ $followerAvatar }}" alt="{{ $follower->name }}" class="w-10 h-10 rounded-full object-cover">
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">{{ $follower->name }}</p>
+                                            <p class="text-xs text-gray-500">&#64;{{ $follower->username }}</p>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <p class="text-sm text-gray-500">You don't have any followers yet.</p>
+                                @endforelse
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide">Following</h3>
+                                <span class="text-sm text-gray-500">{{ $followingCount }}</span>
+                            </div>
+                            <div class="space-y-3">
+                                @forelse($following as $followedUser)
+                                    @php
+                                        $followingAvatar = $followedUser->profile_picture
+                                            ? asset('storage/' . $followedUser->profile_picture)
+                                            : 'https://ui-avatars.com/api/?name=' . urlencode($followedUser->name) . '&size=200';
+                                    @endphp
+                                    <a href="{{ route('profile.show', $followedUser->username) }}" class="flex items-center p-3 rounded-lg border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50/50 transition">
+                                        <img src="{{ $followingAvatar }}" alt="{{ $followedUser->name }}" class="w-10 h-10 rounded-full object-cover">
+                                        <div class="ml-3">
+                                            <p class="text-sm font-medium text-gray-900">{{ $followedUser->name }}</p>
+                                            <p class="text-xs text-gray-500">&#64;{{ $followedUser->username }}</p>
+                                        </div>
+                                    </a>
+                                @empty
+                                    <p class="text-sm text-gray-500">You aren't following anyone yet.</p>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <!-- User Posts Grid -->
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 sm:p-6">
                 <h2 class="text-lg sm:text-xl font-bold text-gray-900 mb-4 sm:mb-6">Posts</h2>

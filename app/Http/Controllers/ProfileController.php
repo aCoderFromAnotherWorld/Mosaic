@@ -17,7 +17,8 @@ class ProfileController extends Controller
             ->with(['media', 'reactions', 'comments'])
             ->latest()
             ->paginate(12);
-        
+
+        $isOwnProfile = $authUser->is($user);
         $followersCount = $user->followers()->count();
         $followingCount = $user->following()->count();
         $friendsCount = $user->friends()->count();
@@ -31,7 +32,20 @@ class ProfileController extends Controller
             ->where('sender_id', $user->id)
             ->where('status', 'pending')
             ->exists();
-        
+
+        $followers = collect();
+        $following = collect();
+
+        if ($isOwnProfile) {
+            $followers = $user->followers()
+                ->orderBy('users.name')
+                ->get();
+
+            $following = $user->following()
+                ->orderBy('users.name')
+                ->get();
+        }
+
         return view('profile.show', compact(
             'user',
             'posts',
@@ -41,7 +55,10 @@ class ProfileController extends Controller
             'isFollowing',
             'isFriend',
             'hasPendingFriendRequest',
-            'hasIncomingFriendRequest'
+            'hasIncomingFriendRequest',
+            'followers',
+            'following',
+            'isOwnProfile'
         ));
     }
 
