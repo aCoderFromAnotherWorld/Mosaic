@@ -375,6 +375,7 @@
     @include('posts.partials.share-modal', [
         'shareFriends' => $shareFriends,
         'shareFollowers' => $shareFollowers,
+        'postUrl' => route('posts.show', $post),
     ])
     <script>
         // Handle reaction forms (like/unlike posts)

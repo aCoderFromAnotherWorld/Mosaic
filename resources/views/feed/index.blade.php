@@ -480,6 +480,7 @@
     @include('posts.partials.share-modal', [
         'shareFriends' => $shareFriends,
         'shareFollowers' => $shareFollowers,
+        'postUrl' => null,
     ])
 
     <!-- Image Modal -->

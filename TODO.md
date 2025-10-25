@@ -10,3 +10,4 @@
 -   [x] Add reply functionality for replies (nested replies)
 -   [x] Display replies to replies in feed maintaining hierarchy
 -   [x] Add reaction modal for posts (show who reacted when clicking reaction count)
+-   [x] Fix copy link functionality in share modal to use post URL instead of current page URL

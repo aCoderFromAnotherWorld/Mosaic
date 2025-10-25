@@ -143,6 +143,56 @@
                 });
         });
 
+        // Copy Link functionality
+        const copyLinkBtn = shareModal.querySelector('#copy-link-btn');
+        const copyLinkText = shareModal.querySelector('#copy-link-text');
+
+        if (copyLinkBtn && copyLinkText) {
+            copyLinkBtn.addEventListener('click', async () => {
+                const url = shareModal.dataset.postUrl || window.location.href;
+
+                try {
+                    await navigator.clipboard.writeText(url);
+                    const originalText = copyLinkText.textContent;
+                    copyLinkText.textContent = 'Copied!';
+                    copyLinkBtn.disabled = true;
+                    copyLinkBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                    setTimeout(() => {
+                        copyLinkText.textContent = originalText;
+                        copyLinkBtn.disabled = false;
+                        copyLinkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy: ', err);
+                    // Fallback for older browsers
+                    const textArea = document.createElement('textarea');
+                    textArea.value = url;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        copyLinkText.textContent = 'Copied!';
+                        copyLinkBtn.disabled = true;
+                        copyLinkBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+                        setTimeout(() => {
+                            copyLinkText.textContent = 'Copy Link';
+                            copyLinkBtn.disabled = false;
+                            copyLinkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                        }, 2000);
+                    } catch (fallbackErr) {
+                        console.error('Fallback copy failed: ', fallbackErr);
+                        copyLinkText.textContent = 'Copy failed';
+                        setTimeout(() => {
+                            copyLinkText.textContent = 'Copy Link';
+                        }, 2000);
+                    }
+                    document.body.removeChild(textArea);
+                }
+            });
+        }
+
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape' && !shareModal.classList.contains('hidden')) {
                 closeShareModal();

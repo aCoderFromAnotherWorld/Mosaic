@@ -1,4 +1,4 @@
-<div id="share-modal" class="fixed inset-0 z-50 hidden">
+<div id="share-modal" class="fixed inset-0 z-50 hidden" data-post-url="{{ $postUrl ?? '' }}">
     <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" data-share-close></div>
     <div class="relative mx-auto mt-16 w-full max-w-2xl px-4 sm:px-6">
         <div class="bg-white rounded-lg shadow-xl overflow-hidden px-6">
@@ -90,6 +90,14 @@
             </div>
 
             <div class="px-5 py-4 border-t border-gray-200 flex items-center justify-end space-x-3">
+                <div class="justify-start">
+                    <button type="button" id="copy-link-btn" class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        <span id="copy-link-text">Copy Link</span>
+                    </button>
+                </div>
                 <button type="button" class="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 transition" data-share-close>
                     Cancel
                 </button>
