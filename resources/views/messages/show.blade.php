@@ -132,12 +132,13 @@
                             <!-- Message Input Row -->
                             <div class="flex items-end space-x-2">
                                 <div class="flex-1 relative">
-                                    <div class="flex">                                    
+                                    <div class="flex">
                                         <textarea name="message"
                                             id="message-input"
                                             rows="1"
                                             class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                             placeholder="Type a message..."
+                                            autocomplete="off"
                                             onkeydown="handleKeyPress(event)">
                                         </textarea>
 
@@ -189,6 +190,11 @@
         // Auto-scroll to bottom on page load
         const messagesContainer = document.getElementById('messages-container');
         messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        // Clear message input on page load to prevent auto-fill
+        window.addEventListener('load', function() {
+            document.getElementById('message-input').value = '';
+        });
 
         // Handle Enter key to send message
         function handleKeyPress(event) {
