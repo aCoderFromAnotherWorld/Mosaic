@@ -1,4 +1,4 @@
-<x-app-layout>
+o<x-app-layout>
     <div class="py-6">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-lg shadow-md overflow-hidden" style="height: calc(100vh - 120px);">
@@ -54,7 +54,7 @@
                                         @if($message->user_id === auth()->id())
                                             <button type="button"
                                                     onclick="toggleMessageMenu(this, {{ $message->id }})"
-                                                    class="absolute -left-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors opacity-0 group-hover:opacity-100">
+                                                    class="absolute -left-8 top-2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors opacity-0 group-hover:opacity-100">
                                                 <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
                                                 </svg>
@@ -62,9 +62,9 @@
 
                                             <div id="message-menu-{{ $message->id }}"
                                                  class="hidden absolute w-32 bg-white rounded-lg shadow-lg py-1 z-10 border border-gray-200"
-                                                 style="left: -152px; top: 50%; transform: translateY(-50%);">
+                                                 style="left: -144px; top: 8px;">
                                                 <button type="button"
-                                                        onclick="editMessage({{ $message->id }}, '{{ addslashes($message->message) }}')"
+                                                        onclick="startEditMessage({{ $message->id }}, '{{ addslashes($message->message) }}')"
                                                         class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                                                     Edit
                                                 </button>
@@ -99,17 +99,27 @@
                         <form method="POST" action="{{ route('messages.store', $otherUser) }}" id="message-form" class="flex items-end space-x-2">
                             @csrf
                             <div class="flex-1">
-                                <textarea name="message" 
+                                <textarea name="message"
                                           id="message-input"
-                                          rows="1" 
+                                          rows="1"
                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                                           placeholder="Type a message..."
                                           required
                                           onkeydown="handleKeyPress(event)"></textarea>
                             </div>
-                            <button type="submit" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition flex-shrink-0">
+                            <button type="submit" id="send-button" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition flex-shrink-0">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                </svg>
+                            </button>
+                            <button type="button" id="update-button" class="hidden bg-green-600 text-white p-3 rounded-lg hover:bg-green-700 transition flex-shrink-0" onclick="submitEdit()">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </button>
+                            <button type="button" id="cancel-button" class="hidden bg-gray-600 text-white p-3 rounded-lg hover:bg-gray-700 transition flex-shrink-0" onclick="cancelEdit()">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                 </svg>
                             </button>
                         </form>
@@ -163,31 +173,77 @@
             }
         });
 
-        // Edit message
-        function editMessage(messageId, currentMessage) {
-            const newMessage = prompt('Edit your message:', currentMessage);
-            if (newMessage && newMessage.trim() !== '' && newMessage !== currentMessage) {
-                fetch(`/messages/${messageId}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                    },
-                    body: JSON.stringify({
-                        message: newMessage.trim()
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Failed to edit message');
-                });
+        // Start editing message
+        let editingMessageId = null;
+
+        function startEditMessage(messageId, currentMessage) {
+            editingMessageId = messageId;
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+            const updateButton = document.getElementById('update-button');
+            const cancelButton = document.getElementById('cancel-button');
+
+            // Populate textarea with current message
+            messageInput.value = currentMessage;
+            messageInput.focus();
+
+            // Show update and cancel buttons, hide send button
+            sendButton.classList.add('hidden');
+            updateButton.classList.remove('hidden');
+            cancelButton.classList.remove('hidden');
+
+            // Close menu
+            toggleMessageMenu(null, messageId);
+        }
+
+        // Submit edit
+        function submitEdit() {
+            if (!editingMessageId) return;
+
+            const messageInput = document.getElementById('message-input');
+            const newMessage = messageInput.value.trim();
+
+            if (newMessage === '') {
+                alert('Message cannot be empty');
+                return;
             }
+
+            fetch(`/messages/${editingMessageId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    message: newMessage
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    cancelEdit(); // Reset UI
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to edit message');
+            });
+        }
+
+        // Cancel edit
+        function cancelEdit() {
+            editingMessageId = null;
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+            const updateButton = document.getElementById('update-button');
+            const cancelButton = document.getElementById('cancel-button');
+
+            // Clear textarea and reset buttons
+            messageInput.value = '';
+            sendButton.classList.remove('hidden');
+            updateButton.classList.add('hidden');
+            cancelButton.classList.add('hidden');
         }
 
         // Delete message
