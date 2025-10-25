@@ -351,12 +351,12 @@
                                                                                      class="w-6 h-6 rounded-full object-cover border border-gray-200">
                                                                                 <div class="flex-1">
                                                                                     <div class="bg-gray-50 rounded-lg px-3 py-2">
-                                                                                        <a href="{{ route('profile.show', $nestedReply->user->username) }}" class="font-semibold text-[10px] text-gray-900 hover:text-indigo-600 transition-colors">
+                                                                                        <a href="{{ route('profile.show', $nestedReply->user->username) }}" class="font-semibold text-xs text-gray-900 hover:text-indigo-600 transition-colors">
                                                                                             {{ $nestedReply->user->name }}
                                                                                         </a>
-                                                                                        <p class="text-[10px] text-gray-700 mt-1">{{ $nestedReply->content }}</p>
+                                                                                        <p class="text-xs text-gray-700 mt-1">{{ $nestedReply->content }}</p>
                                                                                     </div>
-                                                                                    <div class="flex items-center flex-wrap gap-2 mt-1 text-[10px] text-gray-500">
+                                                                                    <div class="flex items-center flex-wrap gap-2 mt-1 text-xs text-gray-500">
                                                                                         <span>{{ $nestedReply->created_at->diffForHumans() }}</span>
                                                                                         <div class="flex items-center space-x-2">
                                                                                             @if($nestedReplyLiked)
@@ -419,7 +419,7 @@
                                                                             </div>
                                                                         @endforeach
                                                                         @if($reply->replies->count() > 2)
-                                                                            <a href="{{ route('posts.show', $post) }}#comment-{{ $reply->id }}" class="text-[10px] text-indigo-600 hover:text-indigo-500 transition-colors font-medium">
+                                                                            <a href="{{ route('posts.show', $post) }}#comment-{{ $reply->id }}" class="text-xs text-indigo-600 hover:text-indigo-500 transition-colors font-medium">
                                                                                 View {{ $reply->replies->count() - 2 }} more {{ Str::plural('reply', $reply->replies->count() - 2) }}
                                                                             </a>
                                                                         @endif
