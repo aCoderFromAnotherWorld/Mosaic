@@ -41,47 +41,11 @@
                                     @endif
 
                                     <div class="group relative">
-                                        <div class="px-4 py-2 rounded-2xl {{ $message->user_id === auth()->id() ? 'bg-blue-600 text-white' : 'bg-green-500 text-white' }}">
-                                            @if($message->attachment_path)
-                                                @if(str_contains($message->attachment_type, 'image'))
-                                                    <img src="{{ asset('storage/' . $message->attachment_path) }}" alt="{{ $message->attachment_name }}" class="max-w-full h-auto rounded-lg mb-2 cursor-pointer" onclick="openImageModal('{{ asset('storage/' . $message->attachment_path) }}')">
-                                                @elseif(str_contains($message->attachment_type, 'video'))
-                                                    <video controls class="max-w-full h-auto rounded-lg mb-2">
-                                                        <source src="{{ asset('storage/' . $message->attachment_path) }}" type="{{ $message->attachment_type }}">
-                                                    </video>
-                                                @else
-                                                    <a href="{{ asset('storage/' . $message->attachment_path) }}" target="_blank" class="flex items-center space-x-2 text-blue-200 hover:text-blue-100 mb-2">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                                        </svg>
-                                                        <span class="text-sm">{{ $message->attachment_name }}</span>
-                                                        <span class="text-xs opacity-70">({{ number_format($message->attachment_size / 1024, 1) }} KB)</span>
-                                                    </a>
-                                                @endif
-                                            @endif
-                                            @if($message->message)
-                                                <p class="break-words">{{ $message->message }}</p>
-                                                @if($message->is_edited)
-                                                    <span class="text-xs opacity-70">(edited)</span>
-                                                @endif
-                                            @endif
-                                        </div>
-                                        <p class="text-xs text-gray-500 mt-1 {{ $message->user_id === auth()->id() ? 'text-right' : 'text-left' }}">
-                                            {{ $message->created_at->format('g:i A') }}
-                                        </p>
-
-                                        @if($message->user_id === auth()->id())
-                                            <button type="button"
-                                                    onclick="toggleMessageMenu(this, {{ $message->id }})"
-                                                    class="absolute -left-8 top-2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors opacity-0 group-hover:opacity-100">
-                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
-                                                </svg>
-                                            </button>
-
+                                        <div class="flex">
+                                            @if($message->user_id === auth()->id())
                                             <div id="message-menu-{{ $message->id }}"
-                                                 class="hidden absolute w-32 bg-white rounded-lg shadow-lg py-1 z-10 border border-gray-200"
-                                                 style="left: -144px; top: 8px;">
+                                                class="hidden absolute w-32 bg-white rounded-lg shadow-lg py-1 z-10 border border-gray-200"
+                                                style="left: -144px; top: 8px;">
                                                 @if(!$message->attachment_path)
                                                     <button type="button"
                                                             onclick="startEditMessage({{ $message->id }}, '{{ addslashes($message->message ?? '') }}')"
@@ -95,7 +59,49 @@
                                                     Delete
                                                 </button>
                                             </div>
-                                        @endif
+
+                                                <button type="button"
+                                                        onclick="toggleMessageMenu(this, {{ $message->id }})"
+                                                        class=" -left-8 top-2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors opacity-0 group-hover:opacity-100">
+                                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                                    </svg>
+                                                </button>
+
+                                            @endif
+
+                                            <div class="px-4 py-2 rounded-2xl {{ $message->user_id === auth()->id() ? 'bg-blue-600 text-white' : 'bg-green-500 text-white' }}">
+                                                @if($message->attachment_path)
+                                                    @if(str_contains($message->attachment_type, 'image'))
+                                                        <img src="{{ asset('storage/' . $message->attachment_path) }}" alt="{{ $message->attachment_name }}" class="max-w-full h-auto rounded-lg mb-2 cursor-pointer" onclick="openImageModal('{{ asset('storage/' . $message->attachment_path) }}')">
+                                                    @elseif(str_contains($message->attachment_type, 'video'))
+                                                        <video controls class="max-w-full h-auto rounded-lg mb-2">
+                                                            <source src="{{ asset('storage/' . $message->attachment_path) }}" type="{{ $message->attachment_type }}">
+                                                        </video>
+                                                    @else
+                                                        <a href="{{ asset('storage/' . $message->attachment_path) }}" target="_blank" class="flex items-center space-x-2 text-blue-200 hover:text-blue-100 mb-2">
+                                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                            </svg>
+                                                            <span class="text-sm">{{ $message->attachment_name }}</span>
+                                                            <span class="text-xs opacity-70">({{ number_format($message->attachment_size / 1024, 1) }} KB)</span>
+                                                        </a>
+                                                    @endif
+                                                @endif
+                                                @if($message->message)
+                                                    <p class="break-words">{{ $message->message }}</p>
+                                                    @if($message->is_edited)
+                                                        <span class="text-xs opacity-70">(edited)</span>
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        <p class="text-xs text-gray-500 mt-1 {{ $message->user_id === auth()->id() ? 'text-right' : 'text-left' }}">
+                                            {{ $message->created_at->format('g:i A') }}
+                                        </p>
+
+
                                     </div>
 
                                     @if($message->user_id === auth()->id())
