@@ -123,7 +123,7 @@
 
                     <!-- Message Input -->
                     <div class="p-4 border-t border-gray-200 bg-white">
-                        <form method="POST" action="{{ route('messages.store', $otherUser) }}" id="message-form" enctype="multipart/form-data" class="space-y-3">
+                        <form method="POST" action="{{ route('messages.store', $otherUser) }}" id="message-form" enctype="multipart/form-data" class="space-y-3" onsubmit="return !editingMessageId">
                             @csrf
                             <!-- Attachment Preview -->
                             <div id="attachment-preview" class="hidden flex items-center space-x-2 p-2 bg-gray-50 rounded-lg border">
@@ -202,11 +202,15 @@
             document.getElementById('message-input').value = '';
         });
 
-        // Handle Enter key to send message
+        // Handle Enter key to send message or update edit
         function handleKeyPress(event) {
             if (event.key === 'Enter' && !event.shiftKey) {
                 event.preventDefault();
-                document.getElementById('message-form').submit();
+                if (editingMessageId) {
+                    submitEdit();
+                } else {
+                    document.getElementById('message-form').submit();
+                }
             }
         }
 
