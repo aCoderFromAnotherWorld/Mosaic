@@ -107,6 +107,68 @@
                 </form>
             </div>
 
+            <!-- Change Password Section -->
+            <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
+                <h2 class="text-lg font-medium text-gray-900 mb-2">Change Password</h2>
+                <p class="text-sm text-gray-600 mb-4">
+                    Update your password regularly to keep your account secure.
+                </p>
+
+                @if (session('status') === 'password-updated')
+                    <div class="mb-4 rounded-lg border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-700">
+                        Password updated successfully.
+                    </div>
+                @endif
+
+                <form method="POST" action="{{ route('profile.password.update') }}" class="space-y-5">
+                    @csrf
+                    @method('PUT')
+
+                    <div>
+                        <label for="current_password" class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                        <input type="password"
+                               id="current_password"
+                               name="current_password"
+                               autocomplete="current-password"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        @error('current_password', 'updatePassword')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                        <input type="password"
+                               id="password"
+                               name="password"
+                               autocomplete="new-password"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        @error('password', 'updatePassword')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <input type="password"
+                               id="password_confirmation"
+                               name="password_confirmation"
+                               autocomplete="new-password"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                        @error('password_confirmation', 'updatePassword')
+                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        @enderror
+                    </div>
+
+                    <div class="flex items-center space-x-3">
+                        <button type="submit"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+
             <!-- Delete Account Section -->
             <div class="mt-8 bg-white rounded-xl shadow-sm border border-gray-200 p-6 sm:p-8">
                 <h2 class="text-lg font-medium text-gray-900 mb-2">Delete Account</h2>
