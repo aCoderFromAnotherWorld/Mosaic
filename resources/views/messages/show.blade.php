@@ -208,27 +208,36 @@ o<x-app-layout>
                 return;
             }
 
-            fetch(`/messages/${editingMessageId}`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: JSON.stringify({
-                    message: newMessage
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    cancelEdit(); // Reset UI
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to edit message');
-            });
+            // Create a temporary form to handle the request properly
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/messages/${editingMessageId}`;
+            form.style.display = 'none';
+
+            // Add CSRF token
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = '_token';
+            tokenInput.value = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            form.appendChild(tokenInput);
+
+            // Add method spoofing for PATCH
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'PATCH';
+            form.appendChild(methodInput);
+
+            // Add message
+            const messageInputField = document.createElement('input');
+            messageInputField.type = 'hidden';
+            messageInputField.name = 'message';
+            messageInputField.value = newMessage;
+            form.appendChild(messageInputField);
+
+            // Add to document and submit
+            document.body.appendChild(form);
+            form.submit();
         }
 
         // Cancel edit
