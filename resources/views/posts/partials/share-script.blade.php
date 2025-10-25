@@ -18,6 +18,11 @@
         }
 
         let currentShareUrl = null;
+        let currentPostUrl = null;
+        let copyResetTimeout = null;
+        const copyLinkBtn = shareModal.querySelector('#copy-link-btn');
+        const copyLinkText = shareModal.querySelector('#copy-link-text');
+        const originalCopyText = copyLinkText ? copyLinkText.textContent : '';
 
         const setShareFeedback = (message, isSuccess = false) => {
             shareFeedback.textContent = message;
@@ -46,6 +51,14 @@
                 checkbox.checked = false;
             });
             setShareSubmitting(false);
+            if (copyResetTimeout) {
+                clearTimeout(copyResetTimeout);
+            }
+            if (copyLinkBtn && copyLinkText) {
+                copyLinkBtn.disabled = false;
+                copyLinkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                copyLinkText.textContent = originalCopyText || 'Copy Link';
+            }
         };
 
         const closeShareModal = () => {
@@ -54,8 +67,10 @@
             resetShareModal();
         };
 
-        const openShareModal = (shareUrl) => {
+        const openShareModal = (shareUrl, postUrl) => {
             currentShareUrl = shareUrl;
+            currentPostUrl = postUrl || window.location.href;
+            shareModal.dataset.postUrl = currentPostUrl;
             resetShareModal();
             shareModal.classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
@@ -73,11 +88,12 @@
         shareTriggers.forEach(trigger => {
             trigger.addEventListener('click', () => {
                 const url = trigger.dataset.shareUrl;
+                const postUrl = trigger.dataset.postUrl || window.location.href;
                 if (!url) {
                     console.error('Share URL missing for trigger:', trigger);
                     return;
                 }
-                openShareModal(url);
+                openShareModal(url, postUrl);
             });
         });
 
@@ -144,22 +160,18 @@
         });
 
         // Copy Link functionality
-        const copyLinkBtn = shareModal.querySelector('#copy-link-btn');
-        const copyLinkText = shareModal.querySelector('#copy-link-text');
-
         if (copyLinkBtn && copyLinkText) {
             copyLinkBtn.addEventListener('click', async () => {
-                const url = shareModal.dataset.postUrl || window.location.href;
+                const url = currentPostUrl || shareModal.dataset.postUrl || window.location.href;
 
                 try {
                     await navigator.clipboard.writeText(url);
-                    const originalText = copyLinkText.textContent;
                     copyLinkText.textContent = 'Copied!';
                     copyLinkBtn.disabled = true;
                     copyLinkBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-                    setTimeout(() => {
-                        copyLinkText.textContent = originalText;
+                    copyResetTimeout = setTimeout(() => {
+                        copyLinkText.textContent = originalCopyText || 'Copy Link';
                         copyLinkBtn.disabled = false;
                         copyLinkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                     }, 2000);
@@ -176,16 +188,16 @@
                         copyLinkBtn.disabled = true;
                         copyLinkBtn.classList.add('opacity-50', 'cursor-not-allowed');
 
-                        setTimeout(() => {
-                            copyLinkText.textContent = 'Copy Link';
+                        copyResetTimeout = setTimeout(() => {
+                            copyLinkText.textContent = originalCopyText || 'Copy Link';
                             copyLinkBtn.disabled = false;
                             copyLinkBtn.classList.remove('opacity-50', 'cursor-not-allowed');
                         }, 2000);
                     } catch (fallbackErr) {
                         console.error('Fallback copy failed: ', fallbackErr);
                         copyLinkText.textContent = 'Copy failed';
-                        setTimeout(() => {
-                            copyLinkText.textContent = 'Copy Link';
+                        copyResetTimeout = setTimeout(() => {
+                            copyLinkText.textContent = originalCopyText || 'Copy Link';
                         }, 2000);
                     }
                     document.body.removeChild(textArea);
