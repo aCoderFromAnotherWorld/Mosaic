@@ -247,9 +247,11 @@
 
         // Start editing message
         let editingMessageId = null;
+        let originalMessage = null;
 
         function startEditMessage(messageId, currentMessage) {
             editingMessageId = messageId;
+            originalMessage = currentMessage;
             const messageInput = document.getElementById('message-input');
             const sendButton = document.getElementById('send-button');
             const updateButton = document.getElementById('update-button');
@@ -277,6 +279,11 @@
 
             if (newMessage === '') {
                 alert('Message cannot be empty');
+                return;
+            }
+
+            if (newMessage === originalMessage) {
+                cancelEdit();
                 return;
             }
 
@@ -315,6 +322,7 @@
         // Cancel edit
         function cancelEdit() {
             editingMessageId = null;
+            originalMessage = null;
             const messageInput = document.getElementById('message-input');
             const sendButton = document.getElementById('send-button');
             const updateButton = document.getElementById('update-button');
