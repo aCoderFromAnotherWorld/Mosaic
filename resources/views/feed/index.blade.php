@@ -193,11 +193,49 @@
                                                         </form>
                                                     @endif
                                                     @if($commentLikesCount > 0)
-                                                        <span class="text-gray-400">{{ $commentLikesCount }} {{ Str::plural('like', $commentLikesCount) }}</span>
+                                                        <button type="button" onclick="openCommentLikesModal({{ $comment->id }})" class="text-gray-400 hover:text-indigo-600 transition-colors font-medium">
+                                                            {{ $commentLikesCount }} {{ Str::plural('Like', $commentLikesCount) }}
+                                                        </button>
                                                     @endif
                                                 </div>
                                                 <button type="button" class="hover:text-gray-700 transition-colors" onclick="toggleFeedReplyForm('{{ $replyFormId }}')">Reply</button>
+                                                @can('delete', $comment)
+                                                    <form method="POST" action="{{ route('comments.destroy', $comment) }}" class="inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" onclick="return confirm('Delete this comment?')" class="hover:text-red-600 transition-colors font-medium">
+                                                            Delete
+                                                        </button>
+                                                    </form>
+                                                @endcan
                                             </div>
+                                            @if($commentLikesCount > 0)
+                                                <div id="comment-likes-modal-{{ $comment->id }}" class="comment-likes-modal hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeCommentLikesModal({{ $comment->id }})">
+                                                    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm" onclick="event.stopPropagation();">
+                                                        <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                                                            <h3 class="text-lg font-semibold text-gray-900">Likes</h3>
+                                                            <button type="button" onclick="closeCommentLikesModal({{ $comment->id }})" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                                                <span class="sr-only">Close</span>
+                                                                &times;
+                                                            </button>
+                                                        </div>
+                                                        <div class="max-h-64 overflow-y-auto divide-y divide-gray-100">
+                                                            @foreach($comment->likes as $like)
+                                                                @php $likedUser = $like->user; @endphp
+                                                                @if($likedUser)
+                                                                    <a href="{{ route('profile.show', $likedUser->username) }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                                                                        <img src="{{ $likedUser->profile_picture ? asset('storage/' . $likedUser->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($likedUser->name) }}" alt="{{ $likedUser->name }}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                                                                        <div>
+                                                                            <p class="text-sm font-semibold text-gray-900">{{ $likedUser->name }}</p>
+                                                                            <p class="text-xs text-gray-500">{{ '@' . $likedUser->username }}</p>
+                                                                        </div>
+                                                                    </a>
+                                                                @endif
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
                                             <div id="{{ $replyFormId }}" class="hidden mt-2">
                                                 <form method="POST" action="{{ route('comments.store', $post) }}" class="comment-form" data-post-id="{{ $post->id }}">
                                                     @csrf
@@ -213,6 +251,10 @@
                                             @if($comment->replies->isNotEmpty())
                                                 <div class="ml-6 mt-3 space-y-3">
                                                     @foreach($comment->replies->take(2) as $reply)
+                                                        @php
+                                                            $replyLikesCount = $reply->likes->count();
+                                                            $replyLiked = $reply->isLikedBy(auth()->user());
+                                                        @endphp
                                                         <div class="flex space-x-3">
                                                             <img src="{{ $reply->user->profile_picture ? asset('storage/' . $reply->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($reply->user->name) }}" 
                                                                  alt="{{ $reply->user->name }}" 
@@ -224,10 +266,65 @@
                                                                     </a>
                                                                     <p class="text-xs text-gray-700 mt-1">{{ $reply->content }}</p>
                                                                 </div>
-                                                                <div class="flex items-center space-x-3 mt-1 text-[11px] text-gray-500">
+                                                                <div class="flex items-center flex-wrap gap-2 mt-1 text-[11px] text-gray-500">
                                                                     <span>{{ $reply->created_at->diffForHumans() }}</span>
+                                                                    <div class="flex items-center space-x-2">
+                                                                        @if($replyLiked)
+                                                                            <form method="POST" action="{{ route('comments.unlike', $reply) }}" class="comment-like-form inline" data-comment-id="{{ $reply->id }}">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <button type="submit" class="hover:text-red-600 transition-colors font-medium">Unlike</button>
+                                                                            </form>
+                                                                        @else
+                                                                            <form method="POST" action="{{ route('comments.like', $reply) }}" class="comment-like-form inline" data-comment-id="{{ $reply->id }}">
+                                                                                @csrf
+                                                                                <button type="submit" class="hover:text-gray-700 transition-colors font-medium">Like</button>
+                                                                            </form>
+                                                                        @endif
+                                                                        @if($replyLikesCount > 0)
+                                                                            <button type="button" onclick="openCommentLikesModal({{ $reply->id }})" class="text-gray-400 hover:text-indigo-600 transition-colors font-medium">
+                                                                                {{ $replyLikesCount }} {{ Str::plural('Like', $replyLikesCount) }}
+                                                                            </button>
+                                                                        @endif
+                                                                    </div>
                                                                     <a href="{{ route('posts.show', $post) }}#comment-{{ $reply->id }}" class="hover:text-indigo-600 transition-colors font-medium">View thread</a>
+                                                                    @can('delete', $reply)
+                                                                        <form method="POST" action="{{ route('comments.destroy', $reply) }}" class="inline">
+                                                                            @csrf
+                                                                            @method('DELETE')
+                                                                            <button type="submit" onclick="return confirm('Delete this reply?')" class="hover:text-red-600 transition-colors font-medium">
+                                                                                Delete
+                                                                            </button>
+                                                                        </form>
+                                                                    @endcan
                                                                 </div>
+                                                                @if($replyLikesCount > 0)
+                                                                    <div id="comment-likes-modal-{{ $reply->id }}" class="comment-likes-modal hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeCommentLikesModal({{ $reply->id }})">
+                                                                        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm" onclick="event.stopPropagation();">
+                                                                            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                                                                                <h3 class="text-lg font-semibold text-gray-900">Likes</h3>
+                                                                                <button type="button" onclick="closeCommentLikesModal({{ $reply->id }})" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                                                                    <span class="sr-only">Close</span>
+                                                                                    &times;
+                                                                                </button>
+                                                                            </div>
+                                                                            <div class="max-h-64 overflow-y-auto divide-y divide-gray-100">
+                                                                                @foreach($reply->likes as $like)
+                                                                                    @php $likedUser = $like->user; @endphp
+                                                                                    @if($likedUser)
+                                                                                        <a href="{{ route('profile.show', $likedUser->username) }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                                                                                            <img src="{{ $likedUser->profile_picture ? asset('storage/' . $likedUser->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($likedUser->name) }}" alt="{{ $likedUser->name }}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                                                                                            <div>
+                                                                                                <p class="text-sm font-semibold text-gray-900">{{ $likedUser->name }}</p>
+                                                                                                <p class="text-xs text-gray-500">{{ '@' . $likedUser->username }}</p>
+                                                                                            </div>
+                                                                                        </a>
+                                                                                    @endif
+                                                                                @endforeach
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endif
                                                             </div>
                                                         </div>
                                                     @endforeach
@@ -422,6 +519,22 @@
         function closeImageModal() {
             document.getElementById('imageModal').classList.add('hidden');
             document.body.style.overflow = 'auto';
+        }
+
+        function openCommentLikesModal(commentId) {
+            const modal = document.getElementById('comment-likes-modal-' + commentId);
+            if (modal) {
+                modal.classList.remove('hidden');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeCommentLikesModal(commentId) {
+            const modal = document.getElementById('comment-likes-modal-' + commentId);
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
         }
     </script>
 </x-app-layout>
