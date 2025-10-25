@@ -287,6 +287,7 @@
                                                                             </button>
                                                                         @endif
                                                                     </div>
+                                                                    <button type="button" class="hover:text-indigo-600 transition-colors font-medium" onclick="toggleFeedReplyForm('feed-reply-form-{{ $post->id }}-{{ $reply->id }}')">Reply</button>
                                                                     <a href="{{ route('posts.show', $post) }}#comment-{{ $reply->id }}" class="hover:text-indigo-600 transition-colors font-medium">View thread</a>
                                                                     @can('delete', $reply)
                                                                         <form method="POST" action="{{ route('comments.destroy', $reply) }}" class="inline">
@@ -323,6 +324,105 @@
                                                                                 @endforeach
                                                                             </div>
                                                                         </div>
+                                                                    </div>
+                                                                @endif
+                                                                <div id="feed-reply-form-{{ $post->id }}-{{ $reply->id }}" class="hidden mt-2">
+                                                                    <form method="POST" action="{{ route('comments.store', $post) }}" class="comment-form" data-post-id="{{ $post->id }}">
+                                                                        @csrf
+                                                                        <input type="hidden" name="parent_id" value="{{ $reply->id }}">
+                                                                        <div class="flex space-x-2">
+                                                                            <textarea name="content" rows="2" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-transparent text-sm" placeholder="Write a reply..." required></textarea>
+                                                                            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors text-sm h-fit">
+                                                                                Reply
+                                                                            </button>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                                @if($reply->replies->isNotEmpty())
+                                                                    <div class="ml-6 mt-3 space-y-3">
+                                                                        @foreach($reply->replies->take(2) as $nestedReply)
+                                                                            @php
+                                                                                $nestedReplyLikesCount = $nestedReply->likes->count();
+                                                                                $nestedReplyLiked = $nestedReply->isLikedBy(auth()->user());
+                                                                            @endphp
+                                                                            <div class="flex space-x-3">
+                                                                                <img src="{{ $nestedReply->user->profile_picture ? asset('storage/' . $nestedReply->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($nestedReply->user->name) }}" 
+                                                                                     alt="{{ $nestedReply->user->name }}" 
+                                                                                     class="w-6 h-6 rounded-full object-cover border border-gray-200">
+                                                                                <div class="flex-1">
+                                                                                    <div class="bg-gray-50 rounded-lg px-3 py-2">
+                                                                                        <a href="{{ route('profile.show', $nestedReply->user->username) }}" class="font-semibold text-[10px] text-gray-900 hover:text-indigo-600 transition-colors">
+                                                                                            {{ $nestedReply->user->name }}
+                                                                                        </a>
+                                                                                        <p class="text-[10px] text-gray-700 mt-1">{{ $nestedReply->content }}</p>
+                                                                                    </div>
+                                                                                    <div class="flex items-center flex-wrap gap-2 mt-1 text-[10px] text-gray-500">
+                                                                                        <span>{{ $nestedReply->created_at->diffForHumans() }}</span>
+                                                                                        <div class="flex items-center space-x-2">
+                                                                                            @if($nestedReplyLiked)
+                                                                                                <form method="POST" action="{{ route('comments.unlike', $nestedReply) }}" class="comment-like-form inline" data-comment-id="{{ $nestedReply->id }}">
+                                                                                                    @csrf
+                                                                                                    @method('DELETE')
+                                                                                                    <button type="submit" class="hover:text-red-600 transition-colors font-medium">Unlike</button>
+                                                                                                </form>
+                                                                                            @else
+                                                                                                <form method="POST" action="{{ route('comments.like', $nestedReply) }}" class="comment-like-form inline" data-comment-id="{{ $nestedReply->id }}">
+                                                                                                    @csrf
+                                                                                                    <button type="submit" class="hover:text-gray-700 transition-colors font-medium">Like</button>
+                                                                                                </form>
+                                                                                            @endif
+                                                                                            @if($nestedReplyLikesCount > 0)
+                                                                                                <button type="button" onclick="openCommentLikesModal({{ $nestedReply->id }})" class="text-gray-400 hover:text-indigo-600 transition-colors font-medium">
+                                                                                                    {{ $nestedReplyLikesCount }} {{ Str::plural('Like', $nestedReplyLikesCount) }}
+                                                                                                </button>
+                                                                                            @endif
+                                                                                        </div>
+                                                                                        <a href="{{ route('posts.show', $post) }}#comment-{{ $nestedReply->id }}" class="hover:text-indigo-600 transition-colors font-medium">View thread</a>
+                                                                                        @can('delete', $nestedReply)
+                                                                                            <form method="POST" action="{{ route('comments.destroy', $nestedReply) }}" class="inline">
+                                                                                                @csrf
+                                                                                                @method('DELETE')
+                                                                                                <button type="submit" onclick="return confirm('Delete this reply?')" class="hover:text-red-600 transition-colors font-medium">
+                                                                                                    Delete
+                                                                                                </button>
+                                                                                            </form>
+                                                                                        @endcan
+                                                                                    </div>
+                                                                                    @if($nestedReplyLikesCount > 0)
+                                                                                        <div id="comment-likes-modal-{{ $nestedReply->id }}" class="comment-likes-modal hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="closeCommentLikesModal({{ $nestedReply->id }})">
+                                                                                            <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm" onclick="event.stopPropagation();">
+                                                                                                <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                                                                                                    <h3 class="text-lg font-semibold text-gray-900">Likes</h3>
+                                                                                                    <button type="button" onclick="closeCommentLikesModal({{ $nestedReply->id }})" class="text-gray-400 hover:text-gray-600 transition-colors">
+                                                                                                        <span class="sr-only">Close</span>
+                                                                                                        &times;
+                                                                                                    </button>
+                                                                                                </div>
+                                                                                                <div class="max-h-64 overflow-y-auto divide-y divide-gray-100">
+                                                                                                    @foreach($nestedReply->likes as $like)
+                                                                                                        @php $likedUser = $like->user; @endphp
+                                                                                                        @if($likedUser)
+                                                                                                            <a href="{{ route('profile.show', $likedUser->username) }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                                                                                                                <img src="{{ $likedUser->profile_picture ? asset('storage/' . $likedUser->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($likedUser->name) }}" alt="{{ $likedUser->name }}" class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                                                                                                                <div>
+                                                                                                                    <p class="text-sm font-semibold text-gray-900">{{ $likedUser->name }}</p>
+                                                                                                                    <p class="text-xs text-gray-500">{{ '@' . $likedUser->username }}</p>
+                                                                                                                </div>
+                                                                                                            </a>
+                                                                                                        @endif
+                                                                                                    @endforeach
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    @endif
+                                                                                </div>
+                                                                            </div>
+                                                                        @endforeach
+                                                                        @if($reply->replies->count() > 2)
+                                                                            <a href="{{ route('posts.show', $post) }}#comment-{{ $reply->id }}" class="text-[10px] text-indigo-600 hover:text-indigo-500 transition-colors font-medium">
+                                                                                View {{ $reply->replies->count() - 2 }} more {{ Str::plural('reply', $reply->replies->count() - 2) }}
+                                                                            </a>
+                                                                        @endif
                                                                     </div>
                                                                 @endif
                                                             </div>
