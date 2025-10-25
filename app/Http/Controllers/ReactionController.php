@@ -62,4 +62,18 @@ class ReactionController extends Controller
 
         return back();
     }
+
+    public function show(Post $post)
+    {
+        $reactions = $post->reactions()->with('user:id,name,username,profile_picture')->get();
+
+        if (request()->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'reactions' => $reactions,
+            ]);
+        }
+
+        return view('reactions.show', compact('post', 'reactions'));
+    }
 }

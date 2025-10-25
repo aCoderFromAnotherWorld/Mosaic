@@ -35,6 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Reactions
     Route::post('/posts/{post}/react', [ReactionController::class, 'store'])->name('posts.react');
     Route::delete('/posts/{post}/react', [ReactionController::class, 'destroy'])->name('posts.unreact');
+    Route::get('/posts/{post}/reactions', [ReactionController::class, 'show'])->name('posts.reactions');
     
     // Comments
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');

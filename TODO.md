@@ -9,3 +9,4 @@
 -   [x] Verify "View thread" links still work
 -   [x] Add reply functionality for replies (nested replies)
 -   [x] Display replies to replies in feed maintaining hierarchy
+-   [x] Add reaction modal for posts (show who reacted when clicking reaction count)

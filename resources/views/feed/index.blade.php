@@ -84,7 +84,13 @@
                         <!-- Post Actions -->
                         <div class="border-t border-gray-100 px-4 sm:px-6 py-3 sm:py-4">
                             <div class="flex items-center justify-between text-sm text-gray-500 mb-3">
-                                <span id="reaction-count-{{ $post->id }}">{{ $post->reactions->count() }} {{ Str::plural('reaction', $post->reactions->count()) }}</span>
+                                @if($post->reactions->count() > 0)
+                                    <button type="button" onclick="openPostReactionsModal({{ $post->id }})" class="hover:text-indigo-600 transition-colors">
+                                        <span id="reaction-count-{{ $post->id }}">{{ $post->reactions->count() }} {{ Str::plural('reaction', $post->reactions->count()) }}</span>
+                                    </button>
+                                @else
+                                    <span id="reaction-count-{{ $post->id }}">{{ $post->reactions->count() }} {{ Str::plural('reaction', $post->reactions->count()) }}</span>
+                                @endif
                                 <span>{{ $post->comments->count() }} {{ Str::plural('comment', $post->comments->count()) }}</span>
                             </div>
 
@@ -473,6 +479,22 @@
         <img id="modalImage" src="" alt="Full size image" class="max-h-full max-w-full rounded-lg">
     </div>
 
+    <!-- Post Reactions Modal -->
+    <div id="post-reactions-modal" class="post-reactions-modal hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4" onclick="closePostReactionsModal()">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm" onclick="event.stopPropagation();">
+            <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100">
+                <h3 class="text-lg font-semibold text-gray-900">Reactions</h3>
+                <button type="button" onclick="closePostReactionsModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <span class="sr-only">Close</span>
+                    &times;
+                </button>
+            </div>
+            <div id="post-reactions-content" class="max-h-64 overflow-y-auto divide-y divide-gray-100">
+                <!-- Reactions will be loaded here -->
+            </div>
+        </div>
+    </div>
+
     <script>
         // Handle reaction forms (like/unlike posts)
         document.addEventListener('submit', function(e) {
@@ -631,6 +653,63 @@
 
         function closeCommentLikesModal(commentId) {
             const modal = document.getElementById('comment-likes-modal-' + commentId);
+            if (modal) {
+                modal.classList.add('hidden');
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function openPostReactionsModal(postId) {
+            const modal = document.getElementById('post-reactions-modal');
+            const content = document.getElementById('post-reactions-content');
+
+            // Clear previous content
+            content.innerHTML = '<div class="flex justify-center py-4"><div class="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div></div>';
+
+            // Show modal
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+
+            // Fetch reactions data
+            fetch(`/posts/${postId}/reactions`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.reactions) {
+                    let html = '';
+                    data.reactions.forEach(reaction => {
+                        if (reaction.user) {
+                            html += `
+                                <a href="/profile/${reaction.user.username}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors">
+                                    <img src="${reaction.user.profile_picture ? '/storage/' + reaction.user.profile_picture : 'https://ui-avatars.com/api/?name=' + encodeURIComponent(reaction.user.name)}"
+                                         alt="${reaction.user.name}"
+                                         class="w-10 h-10 rounded-full object-cover border border-gray-200">
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-900">${reaction.user.name}</p>
+                                        <p class="text-xs text-gray-500">@${reaction.user.username}</p>
+                                    </div>
+                                </a>
+                            `;
+                        }
+                    });
+                    content.innerHTML = html || '<div class="px-4 py-3 text-sm text-gray-500">No reactions yet</div>';
+                } else {
+                    content.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500">Failed to load reactions</div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                content.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500">Failed to load reactions</div>';
+            });
+        }
+
+        function closePostReactionsModal() {
+            const modal = document.getElementById('post-reactions-modal');
             if (modal) {
                 modal.classList.add('hidden');
                 document.body.style.overflow = 'auto';
