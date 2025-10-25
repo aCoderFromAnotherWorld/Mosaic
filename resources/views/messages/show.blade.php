@@ -1,4 +1,4 @@
-o<x-app-layout>
+<x-app-layout>
     <div class="py-6">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white rounded-lg shadow-md overflow-hidden" style="height: calc(100vh - 120px);">
