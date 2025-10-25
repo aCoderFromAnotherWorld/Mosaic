@@ -33,25 +33,53 @@
                     <div id="messages-container" class="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
                         @forelse($messages as $message)
                             <div class="flex {{ $message->user_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
-                                <div class="flex items-end space-x-2 max-w-xs lg:max-w-md">
+                                <div class="flex items-end space-x-2 max-w-xs lg:max-w-md relative">
                                     @if($message->user_id !== auth()->id())
-                                        <img src="{{ $message->user->profile_picture ? asset('storage/' . $message->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($message->user->name) }}" 
-                                             alt="{{ $message->user->name }}" 
+                                        <img src="{{ $message->user->profile_picture ? asset('storage/' . $message->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($message->user->name) }}"
+                                             alt="{{ $message->user->name }}"
                                              class="w-8 h-8 rounded-full object-cover">
                                     @endif
-                                    
-                                    <div>
+
+                                    <div class="group relative">
                                         <div class="px-4 py-2 rounded-2xl {{ $message->user_id === auth()->id() ? 'bg-blue-600 text-white' : 'bg-green-500 text-white' }}">
                                             <p class="break-words">{{ $message->message }}</p>
+                                            @if($message->is_edited)
+                                                <span class="text-xs opacity-70">(edited)</span>
+                                            @endif
                                         </div>
                                         <p class="text-xs text-gray-500 mt-1 {{ $message->user_id === auth()->id() ? 'text-right' : 'text-left' }}">
                                             {{ $message->created_at->format('g:i A') }}
                                         </p>
+
+                                        @if($message->user_id === auth()->id())
+                                            <button type="button"
+                                                    onclick="toggleMessageMenu(this, {{ $message->id }})"
+                                                    class="absolute -left-10 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors opacity-0 group-hover:opacity-100">
+                                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                                </svg>
+                                            </button>
+
+                                            <div id="message-menu-{{ $message->id }}"
+                                                 class="hidden absolute w-32 bg-white rounded-lg shadow-lg py-1 z-10 border border-gray-200"
+                                                 style="left: -152px; top: 50%; transform: translateY(-50%);">
+                                                <button type="button"
+                                                        onclick="editMessage({{ $message->id }}, '{{ addslashes($message->message) }}')"
+                                                        class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
+                                                    Edit
+                                                </button>
+                                                <button type="button"
+                                                        onclick="deleteMessage({{ $message->id }})"
+                                                        class="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        @endif
                                     </div>
 
                                     @if($message->user_id === auth()->id())
-                                        <img src="{{ $message->user->profile_picture ? asset('storage/' . $message->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($message->user->name) }}" 
-                                             alt="{{ $message->user->name }}" 
+                                        <img src="{{ $message->user->profile_picture ? asset('storage/' . $message->user->profile_picture) : 'https://ui-avatars.com/api/?name=' . urlencode($message->user->name) }}"
+                                             alt="{{ $message->user->name }}"
                                              class="w-8 h-8 rounded-full object-cover">
                                     @endif
                                 </div>
@@ -110,5 +138,78 @@
             this.style.height = 'auto';
             this.style.height = (this.scrollHeight) + 'px';
         });
+
+        // Toggle message menu
+        function toggleMessageMenu(button, messageId) {
+            const menu = document.getElementById(`message-menu-${messageId}`);
+
+            // Close all other menus
+            document.querySelectorAll('[id^="message-menu-"]').forEach(m => {
+                if (m.id !== `message-menu-${messageId}`) {
+                    m.classList.add('hidden');
+                }
+            });
+
+            // Toggle current menu
+            menu.classList.toggle('hidden');
+        }
+
+        // Close menus when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.group')) {
+                document.querySelectorAll('[id^="message-menu-"]').forEach(menu => {
+                    menu.classList.add('hidden');
+                });
+            }
+        });
+
+        // Edit message
+        function editMessage(messageId, currentMessage) {
+            const newMessage = prompt('Edit your message:', currentMessage);
+            if (newMessage && newMessage.trim() !== '' && newMessage !== currentMessage) {
+                fetch(`/messages/${messageId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    },
+                    body: JSON.stringify({
+                        message: newMessage.trim()
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to edit message');
+                });
+            }
+        }
+
+        // Delete message
+        function deleteMessage(messageId) {
+            if (confirm('Are you sure you want to delete this message?')) {
+                fetch(`/messages/${messageId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Failed to delete message');
+                });
+            }
+        }
     </script>
 </x-app-layout>

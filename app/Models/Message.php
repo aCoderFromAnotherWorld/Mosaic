@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Message extends Model
 {
-    protected $fillable = ['conversation_id', 'user_id', 'message', 'is_read'];
+    protected $fillable = ['conversation_id', 'user_id', 'message', 'is_read', 'is_edited'];
 
     protected $casts = [
         'is_read' => 'boolean',
+        'is_edited' => 'boolean',
     ];
 
     public function conversation()

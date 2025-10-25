@@ -68,6 +68,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/messages/{conversation}', [MessageController::class, 'show'])->name('messages.show');
     Route::get('/messages/create/{user}', [MessageController::class, 'create'])->name('messages.create');
     Route::post('/messages/{user}', [MessageController::class, 'store'])->name('messages.store');
+    Route::patch('/messages/{message}', [MessageController::class, 'update'])->name('messages.update');
+    Route::delete('/messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

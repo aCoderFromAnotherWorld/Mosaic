@@ -109,4 +109,49 @@ class MessageController extends Controller
 
         return redirect()->route('messages.show', $conversation);
     }
+
+    public function update(Request $request, Message $message)
+    {
+        // Check if user owns the message
+        if ($message->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'message' => 'required|string|max:1000',
+        ]);
+
+        $message->update([
+            'message' => $request->message,
+            'is_edited' => true,
+        ]);
+
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => $message->load('user'),
+            ]);
+        }
+
+        return redirect()->back();
+    }
+
+    public function destroy(Message $message)
+    {
+        // Check if user owns the message
+        if ($message->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $conversation = $message->conversation;
+        $message->delete();
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+            ]);
+        }
+
+        return redirect()->route('messages.show', $conversation);
+    }
 }
