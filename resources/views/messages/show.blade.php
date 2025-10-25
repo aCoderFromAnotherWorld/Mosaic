@@ -132,21 +132,24 @@
                             <!-- Message Input Row -->
                             <div class="flex items-end space-x-2">
                                 <div class="flex-1 relative">
-                                    <textarea name="message"
-                                              id="message-input"
-                                              rows="1"
-                                              class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                                              placeholder="Type a message..."
-                                              onkeydown="handleKeyPress(event)"></textarea>
+                                    <div class="flex">                                    
+                                        <textarea name="message"
+                                            id="message-input"
+                                            rows="1"
+                                            class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                            placeholder="Type a message..."
+                                            onkeydown="handleKeyPress(event)">
+                                        </textarea>
 
-                                    <!-- Attachment Button -->
-                                    <button type="button"
-                                            onclick="document.getElementById('attachment-input').click()"
-                                            class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
-                                        </svg>
-                                    </button>
+                                        <!-- Attachment Button -->
+                                        <button type="button"
+                                                onclick="document.getElementById('attachment-input').click()"
+                                                class="right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
 
                                     <!-- Hidden File Input -->
                                     <input type="file"
