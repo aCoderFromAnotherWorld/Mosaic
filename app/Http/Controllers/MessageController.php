@@ -76,8 +76,14 @@ class MessageController extends Controller
     public function store(Request $request, User $user)
     {
         $request->validate([
-            'message' => 'required|string|max:1000',
+            'message' => 'nullable|string|max:1000',
+            'attachment' => 'nullable|file|max:10240', // 10MB max
         ]);
+
+        // Check if either message or attachment is provided
+        if (!$request->message && !$request->attachment) {
+            return back()->withErrors(['message' => 'Either a message or attachment is required.']);
+        }
 
         // Find or create conversation
         $conversation = auth()->user()->conversations()
@@ -91,11 +97,25 @@ class MessageController extends Controller
             $conversation->users()->attach([auth()->id(), $user->id]);
         }
 
-        // Create message
-        $message = $conversation->messages()->create([
+        $messageData = [
             'user_id' => auth()->id(),
             'message' => $request->message,
-        ]);
+        ];
+
+        // Handle file attachment
+        if ($request->hasFile('attachment')) {
+            $file = $request->file('attachment');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('attachments', $filename, 'public');
+
+            $messageData['attachment_path'] = $path;
+            $messageData['attachment_name'] = $file->getClientOriginalName();
+            $messageData['attachment_type'] = $file->getMimeType();
+            $messageData['attachment_size'] = $file->getSize();
+        }
+
+        // Create message
+        $message = $conversation->messages()->create($messageData);
 
         // Update conversation timestamp
         $conversation->touch();
