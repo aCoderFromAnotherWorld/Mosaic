@@ -112,6 +112,12 @@
                         <h1 class="text-xl sm:text-2xl font-bold text-gray-900 truncate">{{ $user->name }}</h1>
                         <p class="text-gray-600">&#64;{{ $user->username }}</p>
                     </div>
+                    
+                    @if($user->bio)
+                    <div class="mt-4">
+                        <p class="text-gray-700 text-sm sm:text-base">{{ $user->bio }}</p>
+                    </div>
+                    @endif
                 </div>
 
                 <!-- Stats & Bio -->
@@ -135,11 +141,6 @@
                         </div>
                     </div>
 
-                    @if($user->bio)
-                        <div class="mt-4">
-                            <p class="text-gray-700 text-sm sm:text-base">{{ $user->bio }}</p>
-                        </div>
-                    @endif
                 </div>
             </div>
 

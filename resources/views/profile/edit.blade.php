@@ -98,7 +98,7 @@
                     </div>
 
                     <!-- Submit Button -->
-                    <div class="flex justify-end">
+                    <div class="flex justify-start">
                         <button type="submit"
                                 class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium">
                             Update Profile
