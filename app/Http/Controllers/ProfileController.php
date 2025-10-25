@@ -20,6 +20,7 @@ class ProfileController extends Controller
         
         $followersCount = $user->followers()->count();
         $followingCount = $user->following()->count();
+        $friendsCount = $user->friends()->count();
         $isFollowing = $authUser->isFollowing($user->id);
         $isFriend = $authUser->isFriend($user->id);
         $hasPendingFriendRequest = $user->friendRequests()
@@ -36,6 +37,7 @@ class ProfileController extends Controller
             'posts',
             'followersCount',
             'followingCount',
+            'friendsCount',
             'isFollowing',
             'isFriend',
             'hasPendingFriendRequest',

@@ -129,6 +129,10 @@
                             <div class="text-xl sm:text-2xl font-bold text-gray-900">{{ $followingCount }}</div>
                             <div class="text-xs sm:text-sm text-gray-600">Following</div>
                         </div>
+                        <div class="text-center">
+                            <div class="text-xl sm:text-2xl font-bold text-gray-900">{{ $friendsCount }}</div>
+                            <div class="text-xs sm:text-sm text-gray-600">Friends</div>
+                        </div>
                     </div>
 
                     @if($user->bio)
